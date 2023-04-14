@@ -1,5 +1,6 @@
 {
     "name": "yupiel/railsphp",
+    "description": "Modernization attempt for railsphp/railsphp package",
     "require": {
         "php": ">=8.2.0",
         "laminas/laminas-validator": "2.30.*",
