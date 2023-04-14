@@ -1,5 +1,5 @@
 {
-    "name": "railsphp/railsphp",
+    "name": "yupiel/railsphp",
     "require": {
         "php": ">=8.2.0",
         "laminas/laminas-validator": "*",
