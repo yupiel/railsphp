@@ -22,7 +22,7 @@ class Generator
             'f|force'   => '',
         ];
         
-        $this->opts = new Zend\Console\Getopt($rules);
+        $this->opts = new Laminas\Console\Getopt($rules);
     }
     
     public function parseCmd()

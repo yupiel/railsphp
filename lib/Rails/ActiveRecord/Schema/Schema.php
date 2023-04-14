@@ -2,8 +2,8 @@
 namespace Rails\ActiveRecord\Schema;
 
 use Closure;
-use Zend\Db;
-use Zend\Db\Sql\Ddl;
+use Laminas\Db;
+use Laminas\Db\Sql\Ddl;
 use Rails;
 use Rails\ActiveRecord\ActiveRecord;
 

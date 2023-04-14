@@ -403,42 +403,42 @@ final class Rails
         switch ($logLevel) {
             case '0':
             case 'emergency':
-                $level = Zend\Log\Logger::EMERG;
+                $level = Laminas\Log\Logger::EMERG;
                 break;
 
             case '1':
             case 'alert':
-                $level = Zend\Log\Logger::ALERT;
+                $level = Laminas\Log\Logger::ALERT;
                 break;
 
             case '2':
             case 'critical':
-                $level = Zend\Log\Logger::CRIT;
+                $level = Laminas\Log\Logger::CRIT;
                 break;
 
             case '3':
             case 'error':
-                $level = Zend\Log\Logger::ERR;
+                $level = Laminas\Log\Logger::ERR;
                 break;
 
             case '4':
             case 'warning':
-                $level = Zend\Log\Logger::WARN;
+                $level = Laminas\Log\Logger::WARN;
                 break;
 
             case '4':
             case 'notice':
-                $level = Zend\Log\Logger::NOTICE;
+                $level = Laminas\Log\Logger::NOTICE;
                 break;
 
             case '5':
             case 'info':
-                $level = Zend\Log\Logger::INFO;
+                $level = Laminas\Log\Logger::INFO;
                 break;
 
             case '6':
             case 'debug':
-                $level = Zend\Log\Logger::DEBUG;
+                $level = Laminas\Log\Logger::DEBUG;
                 break;
 
             default:
@@ -447,13 +447,13 @@ final class Rails
         }
 
         if (false !== $level && null !== $level) {
-            $filter = new Zend\Log\Filter\Priority($level);
+            $filter = new Laminas\Log\Filter\Priority($level);
             $writer->addFilter($filter);
         }
 
         $formatter = new Rails\Log\Formatter\Simple();
 
-        $writer = new Zend\Log\Writer\Stream(self::$config->log_file);
+        $writer = new Laminas\Log\Writer\Stream(self::$config->log_file);
         $writer->setFormatter($formatter);
 
         $logger = new Rails\Log\Logger();

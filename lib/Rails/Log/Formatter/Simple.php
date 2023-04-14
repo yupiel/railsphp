@@ -1,7 +1,7 @@
 <?php
 namespace Rails\Log\Formatter;
 
-class Simple extends \Zend\Log\Formatter\Simple
+class Simple extends \Laminas\Log\Formatter\Simple
 {
     const DEFAULT_FORMAT = '%priorityName%: %message% %extra%';
     

@@ -41,7 +41,7 @@ class ApplicationConsole extends Console
                     'action'  => ''
                 ];
                 
-                $opts = new Zend\Console\Getopt($rules);
+                $opts = new Laminas\Console\Getopt($rules);
                 
                 $argv = $opts->getArguments();
                 if (empty($argv[1])) {
@@ -80,7 +80,7 @@ class ApplicationConsole extends Console
                     'f-s'    => ''
                 ];
                 
-                $opts = new Zend\Console\Getopt($rules);
+                $opts = new Laminas\Console\Getopt($rules);
                 
                 if ($filename = $opts->getOption('f')) {
                     if (true === $filename) {

@@ -84,7 +84,7 @@ $config->action_mailer = [
     /**
      * Allows "sendmail", "smtp" or "file".
      * Also allows a Closure that must return a transport
-     * implementing Zend\Mail\Transport\TransportInterface
+     * implementing Laminas\Mail\Transport\TransportInterface
      */
     'delivery_method' => 'sendmail',
 

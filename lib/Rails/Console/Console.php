@@ -32,7 +32,7 @@ class Console
      */
     public function confirm()
     {
-        return call_user_func_array('Zend\Console\Prompt\Confirm::prompt', func_get_args());
+        return call_user_func_array('Laminas\Console\Prompt\Confirm::prompt', func_get_args());
     }
     
     /**
@@ -40,7 +40,7 @@ class Console
      */
     public function key()
     {
-        return call_user_func_array('Zend\Console\Prompt\Char::prompt', func_get_args());
+        return call_user_func_array('Laminas\Console\Prompt\Char::prompt', func_get_args());
     }
     
     /**
@@ -48,17 +48,17 @@ class Console
      */
     public function input()
     {
-        return call_user_func_array('Zend\Console\Prompt\Line::prompt', func_get_args());
+        return call_user_func_array('Laminas\Console\Prompt\Line::prompt', func_get_args());
     }
     
     public function number()
     {
-        return call_user_func_array('Zend\Console\Prompt\Number::prompt', func_get_args());
+        return call_user_func_array('Laminas\Console\Prompt\Number::prompt', func_get_args());
     }
     
     public function select()
     {
-        return call_user_func_array('Zend\Console\Prompt\Select::prompt', func_get_args());
+        return call_user_func_array('Laminas\Console\Prompt\Select::prompt', func_get_args());
     }
     
     /**
@@ -66,6 +66,6 @@ class Console
      */
     public function instance()
     {
-        return \Zend\Console\Console::getInstance();
+        return \Laminas\Console\Console::getInstance();
     }
 }

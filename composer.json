@@ -3,14 +3,14 @@
     "description": "Modernization attempt for railsphp/railsphp package",
     "require": {
         "php": ">=8.2.0",
-        "laminas/laminas-validator": "2.30.*",
-        "laminas/laminas-log": "2.16.*",
-        "laminas/laminas-mail": "2.22.*",
-        "laminas/laminas-cli": "1.8.*",
-        "laminas/laminas-db": "2.17.*",
-        "symfony/yaml": "6.2.*",
-        "scssphp/scssphp": "1.11.*",
-        "toopay/assetic-minifier": "1.0.*"
+        "laminas/laminas-validator": "^2.30.0",
+        "laminas/laminas-log": "^2.16.0",
+        "laminas/laminas-mail": "^2.22.0",
+        "laminas/laminas-cli": "^1.8.0",
+        "laminas/laminas-db": "^2.17.0",
+        "symfony/yaml": "^6.2.0",
+        "scssphp/scssphp": "^1.11.0",
+        "toopay/assetic-minifier": "^1.0.0"
     },
     "autoload": {
         "psr-0": {
@@ -18,4 +18,3 @@
         }
     }
 }
-

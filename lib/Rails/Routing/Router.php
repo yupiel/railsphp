@@ -199,7 +199,7 @@ class Router
     
     /**
      * This method was copied from ZF2, slightly modified to fit Rails.
-     * Zend\Http\PhpEnvironment\Request::detectBaseUrl()
+     * Laminas\Http\PhpEnvironment\Request::detectBaseUrl()
      */
     protected function detectBasePath()
     {

@@ -1,7 +1,7 @@
 <?php
 namespace Rails\ActiveRecord\Schema\Column;
 
-use Zend\Db\Sql\Ddl\Column\Column as ZfColumn;
+use Laminas\Db\Sql\Ddl\Column\Column as ZfColumn;
 
 class Text extends ZfColumn
 {

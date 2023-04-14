@@ -1,9 +1,9 @@
 <?php
 namespace Rails\Log;
 
-use Zend\Log\Logger as ZendLogger;
+use Laminas\Log\Logger as LaminasLogger;
 
-class Logger extends ZendLogger
+class Logger extends LaminasLogger
 {
     const NONE = 8;
     

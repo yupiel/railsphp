@@ -1,8 +1,8 @@
 <?php
 namespace Rails\ActiveRecord\Schema;
 
-use Zend\Db\Sql\Ddl\Column as ZfColumn;
-use Zend\Db\Sql\Ddl\Constraint as ZfConstraint;
+use Laminas\Db\Sql\Ddl\Column as ZfColumn;
+use Laminas\Db\Sql\Ddl\Constraint as ZfConstraint;
 use Rails\ActiveRecord\Exception;
 
 class TableDefinition
@@ -10,11 +10,11 @@ class TableDefinition
     protected $schema;
     
     /**
-     * @var Zend\Db\Sql\Ddl\CreateTable
+     * @var Laminas\Db\Sql\Ddl\CreateTable
      */
     protected $table;
     
-    public function __construct(Schema $schema, \Zend\Db\Sql\Ddl\CreateTable $table)
+    public function __construct(Schema $schema, \Laminas\Db\Sql\Ddl\CreateTable $table)
     {
         $this->schema = $schema;
         $this->table  = $table;

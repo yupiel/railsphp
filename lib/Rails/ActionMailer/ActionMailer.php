@@ -1,7 +1,7 @@
 <?php
 namespace Rails\ActionMailer;
 
-use Zend\Mail;
+use Laminas\Mail;
 use Rails;
 
 abstract class ActionMailer

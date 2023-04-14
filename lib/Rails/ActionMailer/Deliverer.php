@@ -4,14 +4,14 @@ namespace Rails\ActionMailer;
 use stdClass;
 use Rails;
 use Rails\ActionView;
-use Zend\Mail;
-use Zend\Mime;
+use Laminas\Mail;
+use Laminas\Mime;
 
 /**
  * Builds and delivers mail.
  *
  * This class should only be used by Rails\ActionMailer\Base.
- * In order to create a custom Mail, Zend\Mail should be used
+ * In order to create a custom Mail, Laminas\Mail should be used
  * directly instead.
  */
 class Deliverer
@@ -26,7 +26,7 @@ class Deliverer
     /**
      * Mail message that will be delivered.
      *
-     * @var Zend\Mail\Message
+     * @var Laminas\Mail\Message
      */
     protected $message;
     
@@ -35,7 +35,7 @@ class Deliverer
     protected $htmlTemplate;
     
     /**
-     * @var Zend\Mime\Message
+     * @var Laminas\Mime\Message
      */
     protected $body;
     

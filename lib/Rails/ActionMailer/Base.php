@@ -2,7 +2,7 @@
 namespace Rails\ActionMailer;
 
 use stdClass;
-use Zend\Mime;
+use Laminas\Mime;
 use Rails;
 use Rails\Mail\Mail;
 
