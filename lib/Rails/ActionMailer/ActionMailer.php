@@ -63,7 +63,7 @@ abstract class ActionMailer
         
         switch ($config['delivery_method']) {
             /**
-             * Rails to Zend options:
+             * Rails to Laminas options:
              * address          => name
              * domain           => host
              * port             => port

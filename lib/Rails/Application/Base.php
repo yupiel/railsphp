@@ -2,14 +2,10 @@
 namespace Rails\Application;
 
 use Closure;
-use Zend;
 use Rails;
-use Rails\Config\Config;
-use Rails\Exception\PHPError\Base as PHPErrorBase;
 use Rails\ActionDispatch\ActionDispatch;
 use Rails\ActionView\ActionView;
 use Rails\ActiveRecord\ActiveRecord;
-use Rails\I18n\I18n;
 use Rails\Toolbox;
 
 class Base
@@ -106,14 +102,12 @@ class Base
         $this->_load_active_record();
         $this->setDispatcher();
         $this->initPlugins();
-        $this->init();
         $this->runInitializers();
     }
     
     public function resetConfig($environment)
     {
         $this->setDefaultConfig();
-        $this->initConfig($this->config);
         $this->setEnvironmentConfig($environment);
     }
     
@@ -165,12 +159,6 @@ class Base
         return $this->_dispatcher->router();
     }
     
-    /**
-     * For custom init.
-     */
-    protected function init()
-    {
-    }
 
     protected function _run()
     {
@@ -195,16 +183,6 @@ class Base
     {
         $this->_dispatcher = new ActionDispatch();
         $this->_dispatcher->init();
-    }
-
-    /**
-     * Used in /config/application.php to initialize custom configuration.
-     *
-     * @see _default_config()
-     * @return array.
-     */
-    protected function initConfig($config)
-    {
     }
     
     private function initPlugins()

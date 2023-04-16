@@ -1,9 +1,6 @@
 <?php
 namespace Rails\Console;
 
-use Zend;
-use Rails\Toolbox\FileGenerator;
-
 /**
  * Basic console.
  */
@@ -41,7 +38,7 @@ class ApplicationConsole extends Console
                     'action'  => ''
                 ];
                 
-                $opts = new Laminas\Console\Getopt($rules);
+                $opts = new Getopt($rules);
                 
                 $argv = $opts->getArguments();
                 if (empty($argv[1])) {
@@ -80,7 +77,7 @@ class ApplicationConsole extends Console
                     'f-s'    => ''
                 ];
                 
-                $opts = new Laminas\Console\Getopt($rules);
+                $opts = new Getopt($rules);
                 
                 if ($filename = $opts->getOption('f')) {
                     if (true === $filename) {

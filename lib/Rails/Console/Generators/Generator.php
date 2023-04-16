@@ -1,8 +1,8 @@
 <?php
 namespace Rails\Console\Generators;
 
-use Zend;
 use Rails\Console\Console;
+use Rails\Console\Getopt;
 use Rails\Toolbox;
 use Rails\Toolbox\FileGenerators;
 
@@ -22,7 +22,7 @@ class Generator
             'f|force'   => '',
         ];
         
-        $this->opts = new Laminas\Console\Getopt($rules);
+        $this->opts = new Getopt($rules);
     }
     
     public function parseCmd()
@@ -30,7 +30,7 @@ class Generator
         $argv = $this->opts->getArguments();
         
         if (!$argv[1]) {
-            $console->terminate('Missing generator');
+            $this->console->terminate('Missing generator');
         }
         
         try {
@@ -52,12 +52,12 @@ class Generator
                     break;
                 
                 default:
-                    $this->terminate(
+                    $this->console->terminate(
                         sprintf("Unknown generator for %s", $argv[1])
                     );
             }
-        } catch (FileGenerator\Exception\ExceptionInterface $e) {
-            $this->terminate(
+        } catch (FileGenerators\Exception\ExceptionInterface $e) {
+            $this->console->terminate(
                 "Error: " . $e->getMessage()
             );
         }
