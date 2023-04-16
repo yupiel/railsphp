@@ -8,18 +8,18 @@ use Rails\Routing\Exception;
 class UrlHelpers
 {
     use NamedPathAwareTrait;
-    
+
     public function __call($method, $params)
     {
         if ($this->isNamedPathMethod($method)) {
             return $this->getNamedPath($method, $params);
         }
-        
+
         throw new Exception\BadMethodCallException(
             sprintf("Called to unknown method: %s", $method)
         );
     }
-    
+
     public function find_route_with_alias($alias, array $params = [])
     {
         if ($alias == 'root') {
@@ -29,19 +29,19 @@ class UrlHelpers
         } elseif ($alias == "asset") {
             return \Rails::assets()->prefix() . '/';
         }
-        
+
         if ($this->useCache()) {
-            $key   = 'Rails.routes.aliases.' . $alias;
+            $key = 'Rails.routes.aliases.' . $alias;
             $index = Rails::cache()->read($key);
-            
+
             if (null === $index) {
                 $index = $this->findAliasedRoute($alias, $params);
                 Rails::cache()->write($key, $index);
             }
-            
+
             if ($index) {
                 $route = $this->router()->routes()->routes()->offsetGet($index);
-                
+
                 if ($url = $this->buildUrl($route, $params)) {
                     return $url;
                 }
@@ -54,7 +54,7 @@ class UrlHelpers
                 }
             }
         }
-        
+
         # Build exception
         if ($params) {
             if (is_object($params[0])) {
@@ -69,12 +69,12 @@ class UrlHelpers
         } else {
             $inlineParams = "(no parameters)";
         }
-        
+
         throw new Exception\RuntimeException(
             sprintf("No route found with alias '%s' %s", $alias, $inlineParams)
         );
     }
-    
+
     protected function findAliasedRoute($alias, array $params = [])
     {
         foreach ($this->router()->routes() as $k => $route) {
@@ -84,7 +84,7 @@ class UrlHelpers
                 } else {
                     $params = $this->assocWithRouteParams($route, $params);
                 }
-                
+
                 if ($route->build_url_path($params)) {
                     return $k;
                 }
@@ -92,7 +92,7 @@ class UrlHelpers
         }
         return false;
     }
-    
+
     private function buildUrl($route, $params)
     {
         if (isset($params[0]) && $params[0] instanceof \Rails\ActiveRecord\Base) {
@@ -100,33 +100,33 @@ class UrlHelpers
         } else {
             $params = $this->assocWithRouteParams($route, $params);
         }
-        
+
         $url = $route->build_url_path($params);
-        
+
         if ($url) {
             if ($base_path = $this->router()->basePath()) {
                 $url = $base_path . $url;
             }
             return $url;
         }
-        
+
         return false;
     }
-    
+
     /**
      * @return array, null | route and url
      */
     public function find_route_for_token($token, $params = [])
     {
         if ($params instanceof \Rails\ActiveRecord\Base) {
-            $model  = $params;
+            $model = $params;
         } else {
-            $model  = false;
+            $model = false;
         }
-        
+
         if ($this->useCache()) {
-            $key  = 'Rails.routes.tokens.' . $token;
-            $index = Rails::cache()->fetch($key, function() use ($model, $token, $params) {
+            $key = 'Rails.routes.tokens.' . $token;
+            $index = Rails::cache()->fetch($key, function () use ($model, $token, $params) {
                 foreach ($this->router()->routes() as $k => $route) {
                     if ($model) {
                         $params = $this->extract_route_vars_from_model($route, $model);
@@ -137,13 +137,13 @@ class UrlHelpers
                 }
                 return false;
             });
-            
+
             if ($index !== false) {
                 $route = $this->router()->routes()->routes()->offsetGet($index);
                 if ($model) {
                     $params = $this->extract_route_vars_from_model($route, $model);
                 }
-                $url   = $route->match_with_token($token, $params);
+                $url = $route->match_with_token($token, $params);
                 if ($base_path = $this->router()->basePath()) {
                     $url = $base_path . $url;
                 }
@@ -155,7 +155,7 @@ class UrlHelpers
                     $params = $this->extract_route_vars_from_model($route, $model);
                 }
                 $url = $route->match_with_token($token, $params);
-                
+
                 if ($url) {
                     if ($base_path = $this->router()->basePath())
                         $url = $base_path . $url;
@@ -163,15 +163,15 @@ class UrlHelpers
                 }
             }
         }
-        
+
         return false;
     }
-    
+
     public function router()
     {
         return \Rails::application()->router();
     }
-    
+
     private function extract_route_vars_from_model($route, $model)
     {
         $vars = [];
@@ -183,7 +183,7 @@ class UrlHelpers
         }
         return $vars;
     }
-    
+
     private function assocWithRouteParams($route, $params)
     {
         $vars = [];
@@ -199,7 +199,7 @@ class UrlHelpers
         }
         return $vars;
     }
-    
+
     private function useCache()
     {
         return \Rails::env() == 'production';

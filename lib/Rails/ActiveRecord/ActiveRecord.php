@@ -8,28 +8,28 @@ use Rails\ActiveRecord\Connection;
 abstract class ActiveRecord
 {
     static private $_prev_connection = '';
-    
+
     static private
-        $_connection_data = [],
-        
-        /**
-         * The different connections.
-         *
-         * $name => ActiveRecord\Connection
-         */
-        $_connections = [];
-    
+    $_connection_data = [],
+
+    /**
+     * The different connections.
+     *
+     * $name => ActiveRecord\Connection
+     */
+    $_connections = [];
+
     /**
      * Name of the active connection.
      */
     static private $activeConnectionName;
-    
+
     /**
      * If an error ocurred when calling execute_sql(),
      * it will be stored here.
      */
     static private $_last_error;
-    
+
     /**
      * Keep the default connection name (usually the environment's name)
      * here until it's really needed, to avoid connecting to the
@@ -38,12 +38,12 @@ abstract class ActiveRecord
      * @var string
      */
     protected static $defaultConnectionName;
-    
+
     static public function setLastError(array $error, $connection_name = null)
     {
         self::$_last_error = $error;
     }
-    
+
     /**
      * Adds a connection configuration to the list of available connections.
      */
@@ -51,7 +51,7 @@ abstract class ActiveRecord
     {
         self::$_connection_data[$name] = $config;
     }
-    
+
     /**
      * Sets the default active connection.
      */
@@ -61,7 +61,7 @@ abstract class ActiveRecord
         self::$activeConnectionName = $name;
         return true;
     }
-    
+
     /**
      * Stablishes a connection from the available connections list.
      */
@@ -77,12 +77,12 @@ abstract class ActiveRecord
                 sprintf("Connection '%s' does not exist", $name)
             );
     }
-    
+
     static public function connectionExists($name)
     {
         return isset(self::$_connection_data[$name]);
     }
-    
+
     static public function set_environment_connection($environment)
     {
         if (self::connectionExists($environment)) {
@@ -91,7 +91,7 @@ abstract class ActiveRecord
             self::$defaultConnectionName = 'default';
         }
     }
-    
+
     /**
      * Returns connection. By default, returns the
      * currenct active one, or the one matching the $name.
@@ -102,7 +102,7 @@ abstract class ActiveRecord
     {
         if ($name === null) {
             $name = self::$activeConnectionName;
-            
+
             if (!$name) {
                 if (self::$defaultConnectionName) {
                     $name = self::$defaultConnectionName;
@@ -115,10 +115,10 @@ abstract class ActiveRecord
         } else {
             self::create_connection($name);
         }
-        
+
         return self::$_connections[$name];
     }
-    
+
     /**
      * Returns active connection's name.
      */
@@ -136,7 +136,7 @@ abstract class ActiveRecord
             throw new Exception\RuntimeException("No database connection is active");
         return array_merge(self::$_connection_data[self::$activeConnectionName], ['name' => self::$activeConnectionName]);
     }
-    
+
     /**
      * Used by the system when creating schema files.
      */
@@ -144,12 +144,12 @@ abstract class ActiveRecord
     {
         return self::$_connection_data;
     }
-    
+
     static public function lastError()
     {
         return self::$_last_error;
     }
-    
+
     static private function _include_additional_connection($name)
     {
         $config = Rails::application()->config()->active_record;
@@ -159,29 +159,29 @@ abstract class ActiveRecord
         }
         return false;
     }
-    
+
     /**
      * This could be somewhere else.
      */
     static public function proper_adapter_name($adapter_name)
     {
         $adapter_name = strtolower($adapter_name);
-        
+
         switch ($adapter_name) {
             case 'mysql':
                 return 'MySql';
                 break;
-            
+
             case 'sqlite':
                 return 'Sqlite';
                 break;
-            
+
             default:
                 return $adapter_name;
                 break;
         }
     }
-    
+
     static public function restore_connection()
     {
         if (self::$_prev_connection) {

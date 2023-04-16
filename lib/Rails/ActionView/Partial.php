@@ -11,12 +11,12 @@ class Partial extends Template
         $this->_init_render();
         return ob_get_clean();
     }
-    
+
     public function t($name, array $params = [])
     {
         return parent::t($name, $params);
     }
-    
+
     protected function _init_render()
     {
         try {

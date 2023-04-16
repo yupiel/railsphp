@@ -26,7 +26,7 @@ class DefaultEnglishInflections extends Inflections
         '/s$/i' => 's',
         '/$/' => 's',
     ];
-    
+
     protected $singulars = [
         '/(database)s$/i' => '\1',
         '/(quiz)zes$/i' => '\1',
@@ -56,7 +56,7 @@ class DefaultEnglishInflections extends Inflections
         '/(ss)$/i' => '\1',
         '/s$/i' => '',
     ];
-    
+
     protected $irregulars = [
         'person' => 'people',
         'man' => 'men',
@@ -66,7 +66,7 @@ class DefaultEnglishInflections extends Inflections
         'cow' => 'kine',
         'zombie' => 'zombies',
     ];
-    
+
     protected $uncountables = [
         'equipment',
         'information',

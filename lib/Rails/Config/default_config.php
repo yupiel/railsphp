@@ -3,19 +3,19 @@ require_once __DIR__ . '/Config.php';
 require_once __DIR__ . '/../Paths/Paths.php';
 require_once __DIR__ . '/../Paths/Path.php';
 
-$appPath   = new Rails\Paths\Path('app', [self::$root]);
+$appPath = new Rails\Paths\Path('app', [self::$root]);
 $viewsPath = new Rails\Paths\Path('views', [$appPath]);
 
 $paths = new Rails\Paths\Paths([
     'application' => $appPath,
-    'views'       => $viewsPath,
-    'config'      => new Rails\Paths\Path('config', [self::$root]),
+    'views' => $viewsPath,
+    'config' => new Rails\Paths\Path('config', [self::$root]),
     'controllers' => new Rails\Paths\Path('controllers', [$appPath]),
-    'helpers'     => new Rails\Paths\Path('helpers', [$appPath]),
-    'models'      => new Rails\Paths\Path('models', [$appPath]),
-    'layouts'     => new Rails\Paths\Path('layouts', [$viewsPath]),
-    'mailers'     => new Rails\Paths\Path('mailers', [$appPath]),
-    'log'         => new Rails\Paths\Path('log', [self::$root]),
+    'helpers' => new Rails\Paths\Path('helpers', [$appPath]),
+    'models' => new Rails\Paths\Path('models', [$appPath]),
+    'layouts' => new Rails\Paths\Path('layouts', [$viewsPath]),
+    'mailers' => new Rails\Paths\Path('mailers', [$appPath]),
+    'log' => new Rails\Paths\Path('log', [self::$root]),
 ]);
 
 $config = new Rails\Config\Config();
@@ -38,9 +38,9 @@ $config->safe_ips = [
 ];
 
 $config->error = [
-    'report_types'  => E_ALL,
-    'log'           => true,
-    'log_max_size'  => 1024
+    'report_types' => E_ALL,
+    'log' => true,
+    'log_max_size' => 1024
 ];
 
 $config->consider_all_requests_local = !empty($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] === '127.0.0.1';
@@ -50,7 +50,7 @@ $config->date = [
 ];
 
 $config->i18n = [
-    'path'           => Rails::root() . '/config/locales',
+    'path' => Rails::root() . '/config/locales',
     'default_locale' => 'en'
 ];
 
@@ -88,17 +88,17 @@ $config->action_mailer = [
      */
     'delivery_method' => 'sendmail',
 
-    'smtp_settings'   => [
-        'address'        => '',
-        'port'           => 25,
-        'domain'         => '',
-        'user_name'      => '',
-        'password'       => '',
+    'smtp_settings' => [
+        'address' => '',
+        'port' => 25,
+        'domain' => '',
+        'user_name' => '',
+        'password' => '',
         'authentication' => 'login',
         'enable_starttls_auto' => true // Requires openssl PHP extension.
     ],
 
-    'file_settings'   => [
+    'file_settings' => [
         /**
          * Directory where mails will be stored.
          *
@@ -107,7 +107,7 @@ $config->action_mailer = [
          *
          * Defaults to Rails::root() . /tmp/mail.
          */
-        'location'       => null,
+        'location' => null,
 
         /**
          * Any callable argument.
@@ -158,8 +158,8 @@ $config->assets = [
     'css_extensions' => [
         'scss' => [
             'class_name' => 'scssc',
-            'method'     => 'compile',
-            'static'     => false
+            'method' => 'compile',
+            'static' => false
         ]
     ],
 
@@ -180,12 +180,12 @@ $config->assets = [
      */
     'css_compressor' => [
         'class_name' => 'Minifier\CSSMin',
-        'method'     => 'run'
+        'method' => 'run'
     ],
     'js_compressor' => [
         'class_name' => 'Rails\Assets\Parser\Javascript\ClosureApi\ClosureApi',
-        'method'     => 'minify',
-        'static'     => true
+        'method' => 'minify',
+        'static' => true
     ],
 
     /**
@@ -237,12 +237,13 @@ $config->assets = [
 ];
 
 $config->cookies = [
-    'expires'  => 0,
-    'path'     => null, # Defaults to base_path() . '/', set in Cookies
-    'domain'   => null,
-    'secure'   => false,
+    'expires' => 0,
+    'path' => null,
+    # Defaults to base_path() . '/', set in Cookies
+    'domain' => null,
+    'secure' => false,
     'httponly' => false,
-    'raw'      => false
+    'raw' => false
 ];
 
 $config->eager_load_paths = [];

@@ -5,21 +5,21 @@ use Rails\ArrayHelper\GlobalVar;
 
 class Session implements \IteratorAggregate
 {
-    public function getIterator()
+    public function getIterator(): \Traversable
     {
         return new \ArrayIterator($_SESSION);
     }
-    
+
     public function __set($prop, $value)
     {
         $this->set($prop, $value);
     }
-    
+
     public function __get($prop)
     {
         return $this->get($prop);
     }
-    
+
     public function set($prop, $value)
     {
         if (is_object($value)) {
@@ -33,7 +33,7 @@ class Session implements \IteratorAggregate
         }
         return $this;
     }
-    
+
     public function get($prop)
     {
         if (isset($_SESSION[$prop])) {
@@ -49,12 +49,12 @@ class Session implements \IteratorAggregate
         }
         return null;
     }
-    
+
     public function delete($prop)
     {
         unset($this->$prop, $_SESSION[$prop]);
     }
-    
+
     public function merge()
     {
         $params = func_get_args();

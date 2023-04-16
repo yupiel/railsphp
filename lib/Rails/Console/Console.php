@@ -83,7 +83,7 @@ class Console
     {
         if ($bgColor) {
             $bgColor = ";" . ($bgColor + 10);
-        } 
+        }
         if (!$color) {
             $color = ColorInterface::NORMAL;
         }

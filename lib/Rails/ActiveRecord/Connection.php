@@ -85,8 +85,8 @@ class Connection
     protected function default_connection_config()
     {
         return [
-            'username'       => null,
-            'password'       => null,
+            'username' => null,
+            'password' => null,
             'driver_options' => [],
             'pdo_attributes' => []
         ];
@@ -128,11 +128,11 @@ class Connection
         if ($err[2]) {
             ActiveRecord::setLastError($err, $this->name);
             $e = new Exception\QueryException(
-                sprintf("[SQLSTATE %s] (%s) %s", $err[0], (string)$err[1], $err[2])
+                sprintf("[SQLSTATE %s] (%s) %s", $err[0], (string) $err[1], $err[2])
             );
             $e->setStatement($stmt, $params);
 
-            $msg  = "Error on database query execution\n";
+            $msg = "Error on database query execution\n";
             $msg .= $e->getMessage();
             Rails::log()->warning($msg);
         }
@@ -227,7 +227,7 @@ class Connection
         return $this->pdo;
     }
 
-    public function adapterName()
+    public function adapterName(): string
     {
         return $this->adapter_name;
     }

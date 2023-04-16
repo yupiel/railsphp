@@ -24,12 +24,12 @@ class Cookies
      * end of the controller.
      */
     private $jar = array();
-        
+
     /**
      * To know if cookies were set or not.
      */
     private $cookiesSet = false;
-    
+
     public function __get($name)
     {
         if (isset($this->jar[$name]))
@@ -39,7 +39,7 @@ class Cookies
         else
             return null;
     }
-    
+
     public function __set($prop, $params)
     {
         if (is_array($params)) {
@@ -55,14 +55,14 @@ class Cookies
         }
         $this->add($prop, $value, $params);
     }
-    
+
     public function add($name, $value, array $params = array())
     {
         $p = array_merge($this->defaultParams(), $params);
         $this->jar[$name] = new Cookie($name, $value, $p['expires'], $p['path'], $p['domain'], $p['secure'], $p['httponly'], $p['raw']);
         return $this;
     }
-    
+
     public function delete($name, array $params = [])
     {
         $this->add($name, '', array_merge($params, [
@@ -70,7 +70,7 @@ class Cookies
         ]));
         return $this;
     }
-    
+
     /**
      * Actually sets cookie in headers.
      */
@@ -82,7 +82,7 @@ class Cookies
             $this->cookiesSet = true;
         }
     }
-    
+
     private function defaultParams()
     {
         $defaults = \Rails::application()->config()->cookies->toArray();

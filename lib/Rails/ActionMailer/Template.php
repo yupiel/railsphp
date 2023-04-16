@@ -4,9 +4,9 @@ namespace Rails\ActionMailer;
 class Template extends \Rails\ActionView\Base
 {
     private
-        $_template_file,
-        $_contents;
-    
+    $_template_file,
+    $_contents;
+
     public function __construct($template_file)
     {
         if (!is_file($template_file)) {
@@ -16,7 +16,7 @@ class Template extends \Rails\ActionView\Base
         }
         $this->_template_file = $template_file;
     }
-    
+
     public function renderContent()
     {
         ob_start();
@@ -24,7 +24,7 @@ class Template extends \Rails\ActionView\Base
         $this->_contents = ob_get_clean();
         return $this->_contents;
     }
-    
+
     public function contents()
     {
         return $this->_contents;

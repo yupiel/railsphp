@@ -6,26 +6,26 @@ use Rails;
 class Validation
 {
     protected
-        $_success,
-    
-        $_result,
-    
-        $_type,
-    
-        $_data,
-    
-        // $_rule,
-    
-        $_params;
-    
+    $_success,
+
+    $_result,
+
+    $_type,
+
+    $_data,
+
+    // $_rule,
+
+    $_params;
+
     // public function __construct($type, $data, $rule, array $params = array())
     public function __construct($type, $data, array $params = array())
     {
-        $this->_type   = $type;
-        $this->_data   = $data;
+        $this->_type = $type;
+        $this->_data = $data;
         $this->_params = $params;
     }
-    
+
     public function validate()
     {
         $validate_method = '_validate_' . $this->_type;
@@ -37,23 +37,23 @@ class Validation
         $this->_success = $this->$validate_method();
         return $this;
     }
-    
+
     public function success()
     {
         return $this->_success;
     }
-    
+
     protected function _validate_length()
     {
         $this->_data = strlen($this->_data);
         $this->_params['only_integer'] = true;
         return $this->_validate_number();
     }
-    
+
     protected function _validate_format()
     {
         if (is_string($this->_params['with'])) {
-            return (bool)preg_match($this->_params['with'], $this->_data);
+            return (bool) preg_match($this->_params['with'], $this->_data ?? '');
         } elseif (is_callable($this->_params['with'])) {
             return call_user_func($this->_params['with'], $this->_data);
         } else {
@@ -65,21 +65,21 @@ class Validation
             );
         }
     }
-    
+
     protected function _validate_number()
     {
         $result = 2;
         $this->_convert_number($this->_data);
-        
+
         if (!empty($this->_params['in'])) {
             list($min, $max) = $this->_params['in'];
-            
+
             if ($this->_data < $min)
                 $result = -1;
             elseif ($this->_data > $max)
                 $result = 1;
         } elseif (!empty($this->_params['is'])) {
-            if ((int)$this->_data != (int)$this->_params['is']) {
+            if ((int) $this->_data != (int) $this->_params['is']) {
                 if ($this->_data > $this->_params['is']) {
                     $result = 1;
                 } else {
@@ -87,11 +87,11 @@ class Validation
                 }
             }
         } elseif (!empty($this->_params['minimum'])) {
-            if ((int)$this->_data < (int)$this->_params['minimum']) {
+            if ((int) $this->_data < (int) $this->_params['minimum']) {
                 $result = -1;
             }
         } elseif (!empty($this->_params['maximum'])) {
-            if ((int)$this->_data > (int)$this->_params['maximum']) {
+            if ((int) $this->_data > (int) $this->_params['maximum']) {
                 $result = 1;
             }
         } else {
@@ -99,7 +99,7 @@ class Validation
                 "No supported number validation passed"
             );
         }
-        
+
         # Check params. {
         if (!empty($this->_params['even'])) {
             if (($this->_data % 2))
@@ -109,7 +109,7 @@ class Validation
                 $success = false;
         }
         # }
-        
+
         if (isset($success) && $success === false) {
             $this->_result = $result;
         } elseif ($result !== 2) {
@@ -117,10 +117,10 @@ class Validation
             $this->_result = $result;
         } else
             $success = true;
-        
+
         return $success;
     }
-    
+
     protected function _validate_inclusion()
     {
         if (is_array($this->_rule)) {
@@ -134,7 +134,7 @@ class Validation
             );
         }
     }
-    
+
     protected function _validate_exclusion()
     {
         if (is_array($this->_rule)) {
@@ -148,15 +148,15 @@ class Validation
             );
         }
     }
-    
+
     /**
      * Helper function for _validate_number()
      */
     private function _convert_number(&$num)
     {
         if (!empty($this->_params['only_integer']))
-            $num = (int)$num;
+            $num = (int) $num;
         else
-            $num = (float)$num;
+            $num = (float) $num;
     }
 }

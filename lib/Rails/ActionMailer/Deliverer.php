@@ -22,79 +22,79 @@ class Deliverer
      * @var Rails\ActionMailer\Base
      */
     protected $mail;
-    
+
     /**
      * Mail message that will be delivered.
      *
      * @var Laminas\Mail\Message
      */
     protected $message;
-    
+
     protected $textTemplate;
-    
+
     protected $htmlTemplate;
-    
+
     /**
      * @var Laminas\Mime\Message
      */
     protected $body;
-    
+
     public function __construct(Base $mail)
     {
         $this->mail = $mail;
         $this->buildMessage();
     }
-    
+
     public function deliver()
     {
         ActionMailer::transport()->send($this->message);
         return $this;
     }
-    
+
     public function mail()
     {
         return $this->mail;
     }
-    
+
     public function message()
     {
         return $this->message;
     }
-    
+
     private function buildMessage()
     {
         $this->message = new Mail\Message();
-        
+
         $this->setCharset();
         $this->setFrom();
         $this->setTo();
         $this->setSubject();
-        
+
         ActionView\ViewHelpers::load();
-        
+
         $this->createTextPart();
         $this->createHtmlPart();
-        
+
         $this->body = new Mime\Message();
-        
+
         $this->addTemplates();
         $this->addAttachments();
-        
+
         $this->message->setBody($this->body);
-        
+
         /**
          * Set content-type to alternative if both text and html are being send.
          */
         if ($this->textTemplate && $this->htmlTemplate) {
             $this->message
                 ->getHeaders()
-                    ->get('content-type')
-                        ->setType('multipart/alternative');
+                ->get('content-type')
+                ->setType('multipart/alternative');
         }
-        
+
         unset($this->textTemplate, $this->htmlTemplate);
     }
-    
+
     private function setCharset()
     {
         if (!$charset = $this->mail->charset) {
@@ -102,10 +102,10 @@ class Deliverer
             if (!$charset)
                 $charset = null;
         }
-        
+
         $this->message->setEncoding($charset);
     }
-    
+
     private function setFrom()
     {
         if (!is_array($this->mail->from)) {
@@ -114,20 +114,20 @@ class Deliverer
         } else {
             list($email, $name) = $this->mail->from;
         }
-        
+
         $this->message->setFrom($email, $name);
     }
-    
+
     private function setTo()
     {
         $this->message->addTo($this->mail->to);
     }
-    
+
     private function setSubject()
     {
         $this->message->setSubject($this->mail->subject);
     }
-    
+
     private function createTextPart()
     {
         $template_file = $this->templateBasename() . '.text.php';
@@ -138,7 +138,7 @@ class Deliverer
         } catch (Exception\ExceptionInterface $e) {
         }
     }
-    
+
     private function createHtmlPart()
     {
         $template_file = $this->templateBasename() . '.php';
@@ -149,14 +149,14 @@ class Deliverer
         } catch (Exception\ExceptionInterface $e) {
         }
     }
-    
+
     private function templateBasename()
     {
         return Rails::config()->paths->views . '/' .
-               $this->mail->templatePath . '/' .
-               $this->mail->templateName;
+            $this->mail->templatePath . '/' .
+            $this->mail->templateName;
     }
-    
+
     private function addTemplates()
     {
         if ($this->textTemplate) {
@@ -166,7 +166,7 @@ class Deliverer
             $part->encoding = Mime\Mime::ENCODING_QUOTEDPRINTABLE;
             $this->body->addPart($part);
         }
-        
+
         if ($this->htmlTemplate) {
             $content = $this->htmlTemplate->renderContent();
             $part = new Mime\Part($content);
@@ -175,7 +175,7 @@ class Deliverer
             $this->body->addPart($part);
         }
     }
-    
+
     /**
      * Requires Fileinfo.
      */
@@ -186,7 +186,7 @@ class Deliverer
         } else {
             $finfo = false;
         }
-        
+
         foreach ($this->mail->attachments as $filename => $attachment) {
             if (!is_array($attachment)) {
                 throw new Exception\RuntimeException(
@@ -195,8 +195,8 @@ class Deliverer
             } elseif (
                 !is_string($attachment['content']) &&
                 (
-                 !is_resource($attachment['content']) ||
-                 !get_resource_type($attachment['content']) == 'stream'
+                    !is_resource($attachment['content']) ||
+                    !get_resource_type($attachment['content']) == 'stream'
                 )
             ) {
                 throw new Exception\RuntimeException(
@@ -206,9 +206,9 @@ class Deliverer
                     )
                 );
             }
-            
+
             $type = null;
-            
+
             if (empty($attachment['mime_type']) && $finfo) {
                 if (is_resource($attachment['content'])) {
                     $type = $finfo->buffer(stream_get_contents($attachment['content']));
@@ -217,23 +217,23 @@ class Deliverer
                     $type = $finfo->buffer($attachment['content']);
                 }
             }
-            
+
             $part = new Mime\Part($attachment['content']);
-            
+
             if (empty($attachment['encoding'])) {
                 $attachment['encoding'] = Mime\Mime::ENCODING_BASE64;
             }
-            
+
             $part->encoding = $attachment['encoding'];
-            
+
             if ($type) {
                 $part->type = $type;
             }
-            
+
             $part->disposition = !empty($attachment['inline']) ?
-                                  Mime\Mime::DISPOSITION_INLINE :
-                                  Mime\Mime::DISPOSITION_ATTACHMENT;
-            
+                Mime\Mime::DISPOSITION_INLINE :
+                Mime\Mime::DISPOSITION_ATTACHMENT;
+
             $this->body->addPart($part);
         }
     }

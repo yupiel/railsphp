@@ -29,7 +29,7 @@ class Parser
         $error = null;
 
         try {
-            if (function_exists('yaml_parse')) {
+            if (function_exists('yaml_parse_file')) {
                 return yaml_parse_file($this->filepath);
             } else {
                 return SfYaml::parse(file_get_contents($this->filepath));
@@ -41,7 +41,7 @@ class Parser
         }
 
         if ($error) {
-            $msg  = sprintf("Error while reading file %s:\n", $this->filepath);
+            $msg = sprintf("Error while reading file %s:\n", $this->filepath);
             $msg .= $error->getMessage();
             $cn = get_class($error);
             throw new $cn($msg);
@@ -68,7 +68,7 @@ class Parser
         }
 
         if ($error) {
-            $msg  = sprintf("Error while writing file %s:\n", $this->filepath);
+            $msg = sprintf("Error while writing file %s:\n", $this->filepath);
             $msg .= $error->getMessage();
             $cn = get_class($error);
             throw new $cn($msg);

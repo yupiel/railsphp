@@ -9,19 +9,19 @@ trait Assets
             if (!isset($options['digest'])) {
                 $options['digest'] = true;
             }
-            
+
             if (\Rails::config()->assets->enabled) {
                 if (\Rails::config()->serve_static_assets && $options['digest']) {
                     if ($url = \Rails::assets()->findCompiledFile($source)) {
                         return $url;
                     }
                 }
-                
+
                 if ($file = \Rails::assets()->findFile($source)) {
                     return $file->url();
                 }
             }
-            
+
             return \Rails::application()->router()->rootPath() . $source;
         } else {
             return $source;

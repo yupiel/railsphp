@@ -3,5 +3,5 @@ namespace Rails\Generators;
 
 class Base
 {
-    
+
 }

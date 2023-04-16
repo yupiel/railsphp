@@ -11,47 +11,49 @@ class ModelSchema
      * @var string
      */
     protected $name;
-    
+
     protected $schema;
-    
+
     protected $adapter;
-    
+
     protected $indexes;
-    
-    protected $connection;
-    
+
+    protected Connection $connection;
+
     protected $primaryKey;
-    
+
     protected $columnDefaults;
-    
+
+    protected $columns;
+
     public function __construct($name, Connection $connection)
     {
         $this->name = $name;
         $this->connection = $connection;
     }
-    
+
     public function name()
     {
         return $this->name;
     }
-    
+
     public function setName($name)
     {
         $this->name = $name;
         $this->reloadSchema();
     }
-    
+
     public function schemaFile()
     {
         $path = Rails::root() . '/db/table_schema/' . $this->connection->name();
         $file = $path . '/' . $this->name . '.php';
         return $file;
     }
-    
+
     public function reloadSchema()
     {
         $config = Rails::application()->config();
-        
+
         if ($config->active_record->use_cached_schema) {
             $this->loadCachedSchema();
         } elseif (!$this->getSchema()) {
@@ -60,13 +62,13 @@ class ModelSchema
             );
         }
     }
-    
+
     public function tableExists()
     {
         $adapter = $this->adapterClass();
         return $adapter::exists($this->connection, $this->name);
     }
-    
+
     protected function loadCachedSchema()
     {
         $file = $this->schemaFile();
@@ -81,23 +83,23 @@ class ModelSchema
         }
         list($this->columns, $this->indexes) = require $file;
     }
-    
+
     protected function getSchema()
     {
         $adapter = self::adapterClass();
         $data = $adapter::fetchSchema($this->connection, $this->name);
-        
+
         list($this->columns, $this->indexes) = $data;
-        
+
         return true;
     }
-    
+
     protected function adapterClass()
     {
         $name = $this->connection->adapterName();
         return "Rails\ActiveRecord\Adapter\\" . $name . "\Table";
     }
-    
+
     /**
      * This method can be overwritten to return an array
      * with the names of the columns.
@@ -106,17 +108,17 @@ class ModelSchema
     {
         return array_keys($this->columns);
     }
-    
+
     public function columnType($column_name)
     {
         return $this->columns[$column_name]['type'];
     }
-    
+
     public function columnExists($column_name)
     {
         return !empty($this->columns[$column_name]);
     }
-    
+
     public function columnDefaults()
     {
         if ($this->columnDefaults === null) {
@@ -129,7 +131,7 @@ class ModelSchema
         }
         return $this->columnDefaults;
     }
-    
+
     public function enumValues($column_name)
     {
         if (!isset($this->columns[$column_name])) {
@@ -144,12 +146,12 @@ class ModelSchema
         }
         return $this->columns[$column_name]['enum_values'];
     }
-    
+
     public function setPrimaryKey($key)
     {
         $this->primaryKey = $key;
     }
-    
+
     public function primaryKey()
     {
         if ($this->primaryKey) {
@@ -162,7 +164,7 @@ class ModelSchema
         }
         return false;
     }
-    
+
     public function indexes($type = null)
     {
         if (!$type) {

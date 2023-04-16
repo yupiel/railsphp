@@ -11,14 +11,14 @@ trait NamedPathAwareTrait
     {
         return strpos($method, 'Path') === strlen($method) - 4;
     }
-    
+
     protected function getNamedPath($method, array $params = [])
     {
         $alias = \Rails::services()->get('inflector')->underscore(substr($method, 0, -4));
-        
+
         return \Rails::application()
-                ->router()
-                ->url_helpers()
-                ->find_route_with_alias($alias, $params);
+            ->router()
+            ->url_helpers()
+            ->find_route_with_alias($alias, $params);
     }
 }

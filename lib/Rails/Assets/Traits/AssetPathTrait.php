@@ -16,7 +16,7 @@ trait AssetPathTrait
         if (!isset($options['digest'])) {
             $options['digest'] = true;
         }
-        
+
         if ($options['digest']) {
             if ($path = \Rails::assets()->findCompiledFile($file)) {
                 return $path;

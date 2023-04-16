@@ -6,9 +6,9 @@ use Rails\Assets\Traits\AssetPathTrait;
 class PHParser
 {
     use AssetPathTrait;
-    
+
     static protected $instance;
-    
+
     static public function parseContents($contents)
     {
         if (!self::$instance) {
@@ -16,7 +16,7 @@ class PHParser
         }
         return self::$instance->parse($contents);
     }
-    
+
     public function parse($contents)
     {
         ob_start();

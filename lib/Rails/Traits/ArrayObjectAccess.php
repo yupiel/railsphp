@@ -27,7 +27,7 @@ trait ArrayObjectAccess
     private function _aoaccess($prop_name, $args)
     {
         $num_args = count($args);
-        
+
         if ($num_args == 1) {
             $key = array_shift($args);
             if (is_array($key)) {
@@ -46,7 +46,7 @@ trait ArrayObjectAccess
             return $this->$prop_name;
         }
     }
-    
+
     /**
      * Helps automatize the creation of ArrayObjects.
      * Expected to be called in the constructor.
@@ -58,7 +58,7 @@ trait ArrayObjectAccess
         foreach ($props as $prop)
             $this->$prop = new \ArrayObject();
     }
-    
+
     private function _aoaccess_set($prop_name, $key, $value)
     {
         if ($value === null)

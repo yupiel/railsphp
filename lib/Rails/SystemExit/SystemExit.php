@@ -4,7 +4,7 @@ namespace Rails\SystemExit;
 class SystemExit
 {
     protected $callbacks = [];
-    
+
     public function register(callable $callback, $name = '')
     {
         if ($name)
@@ -12,7 +12,7 @@ class SystemExit
         else
             $this->callbacks[] = $callback;
     }
-    
+
     public function unregister($name)
     {
         if (isset($this->callbacks[$name])) {
@@ -22,7 +22,7 @@ class SystemExit
             return false;
         }
     }
-    
+
     public function run()
     {
         foreach ($this->callbacks as $callback) {

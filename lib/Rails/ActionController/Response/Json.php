@@ -4,14 +4,14 @@ namespace Rails\ActionController\Response;
 class Json extends Base
 {
     private $_json;
-    
+
     private $_header_params;
-    
+
     public function __construct($json)
     {
         $this->_json = $json;
     }
-    
+
     public function _render_view()
     {
         if ($this->_json instanceof \Rails\ActiveRecord\Base)
@@ -34,12 +34,12 @@ class Json extends Base
             $this->_json = json_encode($this->_json);
         }
     }
-    
+
     public function _print_view()
     {
         return $this->_json;
     }
-    
+
     private function _to_array($val)
     {
         if ($val instanceof \Rails\ActiveRecord\Collection) {
@@ -48,7 +48,7 @@ class Json extends Base
                 $json[] = $this->_to_array($obj);
             return $json;
         } elseif (is_object($val)) {
-            return (array)$val;
+            return (array) $val;
         } else
             return $val;
     }

@@ -9,7 +9,7 @@ class ApplicationController extends Rails\ActionController\Base
             ]
         ];
     }
-    
+
     final protected function isUserAllowed()
     {
         if (!Rails::application()->validateSafeIps()) {

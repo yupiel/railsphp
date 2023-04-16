@@ -7,9 +7,10 @@ namespace Rails\ActionController\Response;
 class Error extends Base
 {
     private
-        $_e,
-        $_buffer = '',
-        $_report;
+    $_e,
+    $_buffer = '',
+    $_params,
+    $_report;
 
     /**
      * @param Exception|Error $e
@@ -55,7 +56,7 @@ class Error extends Base
 
     private function _header()
     {
-$h = <<<HEREDOC
+        $h = <<<HEREDOC
 <!DOCTYPE html>
 <html lang="en">
 <head>

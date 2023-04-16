@@ -10,12 +10,12 @@ trait AssociationMethods
      * be stored.
      */
     private $loadedAssociations = [];
-    
+
     protected function associations()
     {
         return [];
     }
-    
+
     public function getAssociation($name)
     {
         if (isset($this->loadedAssociations[$name])) {
@@ -26,7 +26,7 @@ trait AssociationMethods
             return $this->loadedAssociations[$name];
         }
     }
-    
+
     protected function setAssociation($name, $object)
     {
         if (!in_array($name, $this->_associations_names())) {
@@ -36,7 +36,7 @@ trait AssociationMethods
         }
         $this->loadedAssociations[$name] = $object;
     }
-    
+
     # Returns association property names.
     private function _associations_names()
     {
@@ -47,7 +47,7 @@ trait AssociationMethods
         }
         return $associations;
     }
-    
+
     /**
      * @param array|Closure $params - Additional parameters to customize the query for the association
      */
@@ -55,7 +55,7 @@ trait AssociationMethods
     {
         return $this->{'_find_' . $type}($prop, $params);
     }
-    
+
     private function get_association_data($prop)
     {
         if ($assocs = $this->associations()) {
@@ -65,7 +65,7 @@ trait AssociationMethods
                         $name = $params;
                         $params = array();
                     }
-                    
+
                     if ($name == $prop) {
                         return array($type, $params);
                     }

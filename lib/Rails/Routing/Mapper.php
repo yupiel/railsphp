@@ -7,41 +7,41 @@ use Rails\Toolbox;
 
 class Mapper
 {
-    const ROOT_URL             = '/';
-    
-    const ROOT_DEFAULT_TO      = 'welcome#index';
-    
-    const ADMIN_DEFAULT_TO     = 'admin#';
-	
-    const ADMIN_STYLESHEET_TO  = 'admin#stylesheet';
-    
+    const ROOT_URL = '/';
+
+    const ROOT_DEFAULT_TO = 'welcome#index';
+
+    const ADMIN_DEFAULT_TO = 'admin#';
+
+    const ADMIN_STYLESHEET_TO = 'admin#stylesheet';
+
     private $concernList = [];
-    
+
     private $paths = [];
-    
+
     private $scopeParams = [];
-    
+
     private $routeNames = [];
-    
+
     private $modules = [];
-    
+
     private $createAsMember = false;
-    
+
     private $createAsCollection = false;
-    
+
     private $resources = [];
-    
+
     private $resource = [];
-    
+
     private $resourceNesting = [];
-    
+
     private $routeSet;
-    
+
     public function __construct(Route\RouteSet $routeSet)
     {
         $this->routeSet = $routeSet;
     }
-    
+
     /**
      * Must specify a verb through the via parameter.
      */
@@ -53,32 +53,32 @@ class Mapper
         }
         $this->createAndAddRoute($url, $to, $params);
     }
-    
+
     public function get($url, $to = null, array $params = array())
     {
         $this->createRouteWithVerb('get', $url, $to, $params);
     }
-    
+
     public function post($url, $to = null, array $params = array())
     {
         $this->createRouteWithVerb('post', $url, $to, $params);
     }
-    
+
     public function put($url, $to = null, array $params = array())
     {
         $this->createRouteWithVerb('put', $url, $to, $params);
     }
-    
+
     public function patch($url, $to = null, array $params = array())
     {
         $this->createRouteWithVerb('patch', $url, $to, $params);
     }
-    
+
     public function delete($url, $to = null, array $params = array())
     {
         $this->createRouteWithVerb('delete', $url, $to, $params);
     }
-    
+
     public function root($to)
     {
         if (!$this->paths) {
@@ -88,7 +88,7 @@ class Mapper
                     $to,
                     [
                         'via' => ['get'],
-                        'as'  => 'root'
+                        'as' => 'root'
                     ]
                 )
             );
@@ -96,76 +96,76 @@ class Mapper
             $this->createAndAddRoute('', $to, ['via' => ['get'], 'as' => implode('_', $this->paths) . '_root']);
         }
     }
-    
+
     public function scope($params, Closure $routesBlock)
     {
         if (is_string($params)) {
-            $params = [ 'path' => $params ];
+            $params = ['path' => $params];
         } elseif (!is_array($params)) {
-            $params = [ $params ];
+            $params = [$params];
         }
-        
+
         if (isset($params['path'])) {
             $this->paths[] = $params['path'];
             unset($params['path']);
         }
-        
+
         $this->scopeParams[] = $params;
         $routesBlock();
         array_pop($this->scopeParams);
         array_pop($this->paths);
     }
-    
+
     public function member(Closure $block)
     {
         $this->scopeParams[] = ['on' => 'member'];
         $block();
         array_pop($this->scopeParams);
     }
-    
+
     /**
      * Namespace is a mix of module + path options.
      */
     public function namespaced($namespace, Closure $block)
     {
-        $this->paths[]      = $namespace;
-        $this->modules[]    = $namespace;
+        $this->paths[] = $namespace;
+        $this->modules[] = $namespace;
         $this->routeNames[] = $namespace;
         $block();
         array_pop($this->paths);
         array_pop($this->modules);
         array_pop($this->routeNames);
     }
-    
+
     /**
      * @param string $name   String with format /^\w+$/
      */
     public function resources($name, $params = null, Closure $block = null)
     {
-        $this->resources[]       = $name;
+        $this->resources[] = $name;
         $this->resourceNesting[] = 'resources';
         $this->createRoutesWithResource(true, $params, $block);
         array_pop($this->resources);
         array_pop($this->resourceNesting);
     }
-    
+
     /**
      * @param string $name   String with format /^\w+$/
      */
     public function resource($name, $params = null, Closure $block = null)
     {
-        $this->resource[]        = $name;
+        $this->resource[] = $name;
         $this->resourceNesting[] = 'resource';
         $this->createRoutesWithResource(false, $params, $block);
         array_pop($this->resource);
         array_pop($this->resourceNesting);
     }
-    
+
     public function concern($name, Closure $block)
     {
         $this->concernList[$name] = $block;
     }
-    
+
     public function collection(Closure $block)
     {
         $this->createAsCollection = true;
@@ -174,7 +174,7 @@ class Mapper
         array_pop($this->scopeParams);
         $this->createAsCollection = false;
     }
-    
+
     private function createRoutesWithResource($multiple, $params, Closure $block = null)
     {
         if ($params instanceof Closure) {
@@ -183,13 +183,13 @@ class Mapper
         } elseif (!is_array($params)) {
             $params = [];
         }
-        
+
         if ($block) {
             $block();
         }
-        
+
         if (isset($params['concerns'])) {
-            $params['concerns'] = (array)$params['concerns'];
+            $params['concerns'] = (array) $params['concerns'];
             foreach ($params['concerns'] as $name) {
                 if (!isset($this->concernList[$name])) {
                     throw new Exception\RuntimeException(
@@ -200,19 +200,19 @@ class Mapper
             }
             unset($params['concerns']);
         }
-        
+
         if (!isset($params['defaults']) || $params['defaults']) {
-            $actions = [ 'index', 'create', 'new', 'edit', 'show', 'update', 'destroy' ];
-            
+            $actions = ['index', 'create', 'new', 'edit', 'show', 'update', 'destroy'];
+
             if (!$multiple) {
                 array_shift($actions);
             }
-            
-            $only    = !empty($params['only'])   ? $params['only']   : [];
-            $except  = !empty($params['except']) ? $params['except'] : [];
-            
+
+            $only = !empty($params['only']) ? $params['only'] : [];
+            $except = !empty($params['except']) ? $params['except'] : [];
+
             unset($params['only'], $params['except']);
-            
+
             foreach ($actions as $action) {
                 if ($only) {
                     $create = in_array($action, $only);
@@ -221,14 +221,14 @@ class Mapper
                 } else {
                     $create = true;
                 }
-                
+
                 if ($create) {
                     $this->addRoute($this->createResourceRoute($action, $params, $multiple));
                 }
             }
         }
     }
-    
+
     private function createResourceRoute($action, $params, $multiple = true, $to = null)
     {
         $path = '';
@@ -236,14 +236,14 @@ class Mapper
         $resources = $this->resources;
         $count = count($resources);
         $inflector = Rails::services()->get('inflector');
-        
+
         $uncountable = ($action == 'index' || $action == 'create' || $action == 'new');
         $single = $count == 1;
-        
+
         foreach ($resources as $k => $res) {
             $path .= '/' . $res;
             $last = $k + 1 == $count;
-            
+
             if ($multiple) {
                 if ($uncountable && $last) {
                     continue;
@@ -257,60 +257,60 @@ class Mapper
                 $pre_alias[] = $singularRes;
                 $path .= '/:' . $singularRes . '_id';
             }
-            
+
         }
-        
+
         if (!$multiple) {
             $resources = $this->resource;
             foreach ($resources as $res) {
                 $path .= '/' . $res;
             }
         }
-        
+
         $path = ltrim($path, '/');
-        
+
         $setAlias = true;
         switch ($action) {
             case 'index':
                 $method = 'get';
                 break;
-                
+
             case 'new':
                 $method = 'get';
                 $path .= '/new';
                 $action = 'blank';
                 array_unshift($pre_alias, 'new');
                 break;
-                
+
             case 'create':
                 $method = 'post';
                 $setAlias = !$multiple;
                 break;
-                
+
             case 'show':
                 $method = 'get';
                 break;
-                
+
             case 'edit':
                 $method = 'get';
                 $path .= '/edit';
                 array_unshift($pre_alias, 'edit');
                 break;
-            
+
             case 'update':
                 $method = ['put', 'patch'];
                 $setAlias = false;
                 break;
-            
+
             case 'destroy':
                 $setAlias = false;
                 $method = 'delete';
                 break;
         }
-        
+
         $controller = end($resources);
         $plural = substr($controller, -1, 1) == 's';
-        
+
         if ($setAlias) {
             if ($multiple) {
                 $aliasedResources = [];
@@ -320,24 +320,24 @@ class Mapper
             } else {
                 $aliasedResources = $resources;
             }
-            
+
             if ($action == 'index') {
                 $lastIndex = count($resources) - 1;
                 $aliasedResources[$lastIndex] = $resources[$lastIndex];
             }
-            
+
             $pre_alias = implode('_', $pre_alias);
             $pre_alias .= ($pre_alias && $this->routeNames ? '_' : '') . implode($this->routeNames);
             $alias = ($pre_alias ? $pre_alias . '_' : '') . implode('_', $aliasedResources);
-            
+
             if ($action == 'index') {
                 if (!$plural) {
                     $alias .= '_index';
                 }
             }
-            
+
             // $alias = $inflector->camelize($alias, false);
-            
+
             if (Route\RouteSet::validate_route_alias($alias)) {
                 Route\RouteSet::add_route_alias($alias);
                 $params['as'] = $alias;
@@ -345,29 +345,29 @@ class Mapper
         } else {
             $params['as'] = '';
         }
-        
+
         if ($method) {
             $params['via'] = $method;
         }
-        
+
         if (!$to) {
             if (!$multiple) {
                 $controller = $inflector->pluralize($controller);
             }
             $to = $controller . '#' . $action;
         }
-        
+
         unset($params['on']);
-        
+
         return $this->createRoute($path, $to, $params, ['skip_resources' => true]);
     }
-    
+
     private function createResourceNestedRoute($action, $params, $multiple = true, $to = null)
     {
-        $path      = '';
-        $setAlias  = true;
+        $path = '';
+        $setAlias = true;
         $resources = $this->resources;
-        
+
         if (isset($params['as'])) {
             $pre_alias = '';
             // $pre_alias = $params['as'];
@@ -378,59 +378,59 @@ class Mapper
             $pre_alias = '';
             $setAlias = false;
         }
-        
+
         foreach ($resources as $k => $res) {
             $path .= '/' . $res;
-            
+
             if ($this->createAsMember || (isset($params['on']) && $params['on'] == 'member'))
                 $path .= '/:id';
             elseif (!isset($params['on']) || $params['on'] != 'collection')
                 $path .= '/:' . $res . '_id';
-            
+
             $pre_alias .= '_' . $res;
         }
-        
+
         if (!$multiple) {
             $resources = $this->resource;
             foreach ($resources as $res) {
                 $path .= '/' . $res;
             }
         }
-    
+
         $method = !empty($params['via']) ? $params['via'] : null;
-        
-        
+
+
         if ($action != 'index') {
             $path .= '/' . $action;
         }
-        
+
         $path = ltrim($path, '/');
-        
+
         $controller = end($resources);
         $plural = substr($controller, -1, 1) == 's';
         $inflector = Rails::services()->get('inflector');
-        
+
         if ($setAlias) {
             $aliasedResources = [];
             foreach ($resources as $resource) {
                 $aliasedResources[] = $inflector->singularize($resource);
             }
-            
+
             if ($action == 'index') {
                 $lastIndex = count($resources) - 1;
                 $aliasedResources[$lastIndex] = $resources[$lastIndex];
             }
-            
+
             $pre_alias .= ($pre_alias && $this->routeNames ? '_' : '') . implode($this->routeNames);
             $alias = ($pre_alias ? $pre_alias . '_' : '') . implode('_', $aliasedResources);
-            
+
             if ($action == 'index') {
                 if (!$plural)
                     $alias .= '_index';
             }
             // elseif ($plural)
-                // $alias = substr($alias, 0, -1);
-                
+            // $alias = substr($alias, 0, -1);
+
             if (Route\RouteSet::validate_route_alias($alias)) {
                 Route\RouteSet::add_route_alias($alias);
                 $params['as'] = $alias;
@@ -438,21 +438,21 @@ class Mapper
         } elseif (empty($params['as'])) {
             $params['as'] = '';
         }
-        
+
         if ($method) {
             $params['via'] = $method;
         }
-        
+
         if (!$to) {
             if (!$multiple) {
                 $controller = $inflector->pluralize($controller);
             }
             $to = $controller . '#' . $action;
         }
-        
+
         return $this->createRoute($path, $to, $params, ['skip_resources' => true]);
     }
-    
+
     /**
      * Used by Rails.
      */
@@ -460,15 +460,15 @@ class Mapper
     {
         $block = $block->bindTo($this);
         $block();
-        
+
         if (!$this->routeSet->rootRoute()) {
             $this->root(self::ROOT_DEFAULT_TO);
         }
-        
+
         $this->createPanelRoute();
         $this->createAssetsRoute();
     }
-    
+
     private function createRoute($url, $to, array $params = [], array $createOpts = [])
     {
         if (!array_key_exists('as', $params)) {
@@ -476,9 +476,9 @@ class Mapper
                 $params['as'] = str_replace('/', '_', $url);
             }
         }
-        
+
         $this->addNestedParams($url, $params);
-        
+
         if (empty($createOpts['skip_resources']) && $this->resourceNesting) {
             $current = end($this->resourceNesting);
             $route = $this->createResourceNestedRoute($url, $params, $current == 'resources', $to);
@@ -488,7 +488,7 @@ class Mapper
         }
         return $route;
     }
-    
+
     private function addNestedParams(&$url, array &$params)
     {
         if ($this->scopeParams) {
@@ -498,7 +498,7 @@ class Mapper
             }
             $params = array_merge($scopeParams, $params);
         }
-        
+
         if ($this->modules) {
             if (!isset($params['module'])) {
                 $params['module'] = [];
@@ -508,7 +508,7 @@ class Mapper
             $params['modules'] = array_filter(array_merge($this->modules, $params['module']));
             unset($params['module']);
         }
-        
+
         if ($this->paths) {
             if (!isset($params['path'])) {
                 $params['path'] = [];
@@ -519,43 +519,43 @@ class Mapper
             unset($params['path']);
         }
     }
-    
+
     private function addRoute($route)
     {
         $route->build();
         $this->routeSet->add($route);
     }
-    
+
     private function createAndAddRoute($url, $to, array $params)
     {
         $this->addRoute($this->createRoute($url, $to, $params));
     }
-    
-    private function createRouteWithVerb($via, $url, $to = null, array $params)
+
+    private function createRouteWithVerb($via, $url, $to = null, array $params = array())
     {
         if (is_array($to)) {
             $params = $to;
             $to = null;
         }
         $params['via'] = $via;
-        
+
         # If inside resources, create an alias using the resources names.
         if ($this->resources) {
             if (!array_key_exists('as', $params)) {
                 if (preg_match('/^[\w\/]+$/', $url)) {
                     $alias = str_replace('/', '_', $url);
                 }
-                $alias .= '_' . implode($this->resources, '_');
+                $alias .= '_' . implode('_', $this->resources);
                 if (!$this->createAsCollection) {
                     $alias = Rails::services()->get('inflector')->singularize($alias);
                 }
                 $params['as'] = $alias;
             }
         }
-        
+
         $this->createAndAddRoute($url, $to, $params);
     }
-    
+
     private function createPanelRoute()
     {
         if ($panelPath = Rails::application()->config()->rails_panel_path) {
@@ -564,23 +564,26 @@ class Mapper
                 self::ADMIN_DEFAULT_TO,
                 [
                     'rails_panel' => true,
-                    'defaults'    => ['controller' => 'admin'],
-                    'via'         => ['get', 'post']
+                    'defaults' => ['controller' => 'admin'],
+                    'via' => ['get', 'post']
                 ]
             );
             $route->build();
             $this->routeSet->set_panel_route($route);
-            
-            $this->routeSet->add(new Route\HiddenRoute($panelPath . '/stylesheet.css', 
-                self::ADMIN_STYLESHEET_TO,
-                [
-                    'via'    => ['get'],
-                    'format' => false
-                ]
-            ));
+
+            $this->routeSet->add(
+                new Route\HiddenRoute(
+                    $panelPath . '/stylesheet.css',
+                    self::ADMIN_STYLESHEET_TO,
+                    [
+                        'via' => ['get'],
+                        'format' => false
+                    ]
+                )
+            );
         }
     }
-    
+
     private function createAssetsRoute()
     {
         if (Rails::application()->config()->assets->enabled && !Rails::application()->config()->serve_static_assets) {

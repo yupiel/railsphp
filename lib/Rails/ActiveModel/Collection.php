@@ -8,8 +8,8 @@ class Collection implements \ArrayAccess, \Iterator
 {
     /* ArrayAccess { */
     protected $members = array();
-    
-    public function offsetSet($offset, $value)
+
+    public function offsetSet($offset, $value): void
     {
         if (is_null($offset)) {
             $this->members[] = $value;
@@ -17,57 +17,57 @@ class Collection implements \ArrayAccess, \Iterator
             $this->members[$offset] = $value;
         }
     }
-    
-    public function offsetExists($offset)
+
+    public function offsetExists($offset): bool
     {
         return isset($this->members[$offset]);
     }
-    
-    public function offsetUnset($offset)
+
+    public function offsetUnset($offset): void
     {
         unset($this->members[$offset]);
     }
-    
-    public function offsetGet($offset)
+
+    public function offsetGet($offset): mixed
     {
         return isset($this->members[$offset]) ? $this->members[$offset] : null;
     }
     /* } Iterator {*/
     protected $position = 0;
-    
-    public function rewind()
+
+    public function rewind(): void
     {
         reset($this->members);
         $this->position = key($this->members);
     }
 
-    public function current()
+    public function current(): mixed
     {
         return $this->members[$this->position];
     }
 
-    public function key()
+    public function key(): mixed
     {
         return key($this->members);
     }
 
-    public function next()
+    public function next(): void
     {
         next($this->members);
         $this->position = key($this->members);
     }
 
-    public function valid()
+    public function valid(): bool
     {
         return array_key_exists($this->position, $this->members);
     }
     /* } */
-    
+
     public function __construct(array $members = array())
     {
         $this->members = $members;
     }
-    
+
     public function merge()
     {
         foreach (func_get_args() as $coll) {
@@ -77,18 +77,18 @@ class Collection implements \ArrayAccess, \Iterator
         }
         return $this;
     }
-    
+
     public function members()
     {
         return $this->members;
     }
-    
+
     # Another way to get members.
     public function toArray()
     {
         return $this->members;
     }
-    
+
     /**
      * Each (experimental)
      *
@@ -114,7 +114,7 @@ class Collection implements \ArrayAccess, \Iterator
             );
         }
     }
-    
+
     public function reduce($var, Closure $block)
     {
         foreach ($this->members() as $m) {
@@ -122,14 +122,14 @@ class Collection implements \ArrayAccess, \Iterator
         }
         return $var;
     }
-    
+
     public function sort(Closure $criteria)
     {
         usort($this->members, $criteria);
         $this->rewind();
         return $this;
     }
-    
+
     public function unshift($model)
     {
         if ($model instanceof Base)
@@ -139,13 +139,13 @@ class Collection implements \ArrayAccess, \Iterator
                 sprintf('Argument must be an instance of either ActiveRecord\Base or ActiveRecord\Collection, %s passed.', gettype($model))
             );
         }
-        
+
         foreach ($model as $m)
             array_unshift($this->members, $m);
-        
+
         return $this;
     }
-    
+
     /**
      * Searches objects for a property with a value and returns object.
      */
@@ -157,7 +157,7 @@ class Collection implements \ArrayAccess, \Iterator
         }
         return false;
     }
-    
+
     # Returns a Collection with the models that matches the options.
     # Eg: $posts->select(array('is_active' => true, 'user_id' => 4));
     # If Closure passed as $opts, the model that returns == true on the function
@@ -165,7 +165,7 @@ class Collection implements \ArrayAccess, \Iterator
     public function select($opts)
     {
         $objs = array();
-        
+
         if (is_array($opts)) {
             foreach ($this as $obj) {
                 foreach ($opts as $prop => $cond) {
@@ -179,17 +179,17 @@ class Collection implements \ArrayAccess, \Iterator
                 $opts($obj) && $objs[] = $obj;
             }
         }
-        
+
         return new self($objs);
     }
-    
+
     /**
      * Removes members according to attributes.
      */
     public function remove($attrs)
     {
         !is_array($attrs) && $attrs = array('id' => $attrs);
-        
+
         foreach ($this->members() as $k => $m) {
             foreach ($attrs as $a => $v) {
                 if ($m->getAttribute($a) != $v)
@@ -200,7 +200,7 @@ class Collection implements \ArrayAccess, \Iterator
         $this->members = array_values($this->members);
         return $this;
     }
-    
+
     /**
      * Get the model with the max value according to `$criteria`.
      * If `$criteria` is a string, it's assumed it's the name of either an
@@ -217,11 +217,11 @@ class Collection implements \ArrayAccess, \Iterator
         if (!$this->members) {
             return false;
         }
-        
+
         if (count($this->members) < 2) {
             return current($this->members);
         }
-        
+
         if (is_string($criteria)) {
             $propName = $criteria;
             $criteria = function ($a, $b) use ($propName) {
@@ -232,38 +232,40 @@ class Collection implements \ArrayAccess, \Iterator
                 }
             };
         } elseif (!$criteria instanceof Closure) {
-            throw new Exception\InvalidArgumentException(sprintf(
-                "Argument 1 must be either string or Closure, %s passed",
-                gettype($criteria)
-            ));
+            throw new Exception\InvalidArgumentException(
+                sprintf(
+                    "Argument 1 must be either string or Closure, %s passed",
+                    gettype($criteria)
+                )
+            );
         }
-        
+
         $members = array_values($this->members);
-        $max     = array_shift($members);
-        
-        array_walk($members, function($member) use (&$max, $criteria) {
+        $max = array_shift($members);
+
+        array_walk($members, function ($member) use (&$max, $criteria) {
             $max = $criteria($max, $member);
         });
-        
+
         return $max;
     }
-    
+
     # Deprecated in favor of none.
     public function blank()
     {
         return empty($this->members);
     }
-    
+
     public function none()
     {
         return empty($this->members);
     }
-    
+
     public function any()
     {
-        return (bool)$this->members;
+        return (bool) $this->members;
     }
-    
+
     /**
      * TODO: xml shouldn't be created here.
      */
@@ -271,21 +273,21 @@ class Collection implements \ArrayAccess, \Iterator
     {
         if ($this->blank())
             return;
-        
+
         $t = get_class($this->current());
-        
+
         $xml = '<?xml version="1.0" encoding="UTF-8"?>';
         $xml .= '<' . $t . '>';
-        
+
         foreach ($this->members() as $obj) {
             $xml .= $obj->toXml(array('skip_instruct' => true));
         }
-        
+
         $xml .= '</' . $t . '>';
-        
+
         return $xml;
     }
-    
+
     public function asJson()
     {
         $json = [];
@@ -293,12 +295,12 @@ class Collection implements \ArrayAccess, \Iterator
             $json[] = $member->asJson();
         return $json;
     }
-    
+
     public function toJson()
     {
         return json_encode($this->asJson());
     }
-    
+
     /**
      * Returns an array of the attributes in the models.
      * $attrs could be a string of a single attribute we want, and
@@ -311,7 +313,7 @@ class Collection implements \ArrayAccess, \Iterator
     public function getAttributes($attrs)
     {
         $models_attrs = array();
-        
+
         if (is_string($attrs)) {
             foreach ($this as $m) {
                 $models_attrs[] = $m->getAttribute($attrs);
@@ -321,19 +323,19 @@ class Collection implements \ArrayAccess, \Iterator
                 $model_attrs = [];
                 foreach ($attrs as $attr) {
                     $model_attrs[$attr] = $m->getAttribute($attr);
-                }   
+                }
                 $models_attrs[] = $model_attrs;
             }
         }
-        
+
         return $models_attrs;
     }
-    
+
     public function size()
     {
         return count($this->members);
     }
-    
+
     # Removes dupe models based on id or other attribute.
     public function unique($attr = 'id')
     {
@@ -346,7 +348,7 @@ class Collection implements \ArrayAccess, \Iterator
         }
         return $this;
     }
-    
+
     # array_slices the collection.
     public function slice($offset, $length = null)
     {
@@ -354,7 +356,7 @@ class Collection implements \ArrayAccess, \Iterator
         $clone->members = array_slice($clone->members, $offset, $length);
         return $clone;
     }
-    
+
     public function deleteIf(Closure $conditions)
     {
         $deleted = false;
@@ -367,7 +369,7 @@ class Collection implements \ArrayAccess, \Iterator
         if ($deleted)
             $this->members = array_values($this->members);
     }
-    
+
     public function replace($replacement)
     {
         if ($replacement instanceof self)

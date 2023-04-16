@@ -6,8 +6,9 @@ use Rails\ActionView;
 # TODO
 class Inline extends Base
 {
+    private $_params;
     private $_template;
-    
+
     public function _render_view()
     {
         # Include helpers.
@@ -18,7 +19,7 @@ class Inline extends Base
         $this->_template->setLocals(\Rails::application()->controller()->vars());
         $this->_template->renderContent();
     }
-    
+
     public function _print_view()
     {
         return $this->_template->content();

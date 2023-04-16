@@ -32,39 +32,39 @@ trait AttributeMethods
      * this property can be set to false.
      */
     static protected $convertAttributeNames = true;
-    
+
     /**
      * Expected to hold only the model's attributes.
      */
     protected $attributes = [];
-    
+
     /**
      * Holds data grabbed from the database for models
      * without a primary key, to be able to update them.
      * Hoever, models should always have a primary key.
      */
     private $storedAttributes = array();
-    
+
     private $changedAttributes = array();
-    
+
     static public function convertAttributeNames($value = null)
     {
         if (null !== $value) {
-            static::$convertAttributeNames = (bool)$value;
+            static::$convertAttributeNames = (bool) $value;
         } else {
             return static::$convertAttributeNames;
         }
     }
-    
+
     static public function isAttribute($name)
     {
         // if (!Rails::config()->ar2) {
-            // return static::table()->columnExists(static::properAttrName($name));
+        // return static::table()->columnExists(static::properAttrName($name));
         // } else {
         return static::table()->columnExists($name);
         // }
     }
-    
+
     /**
      * This method allows to "overloadingly" get attributes this way:
      * $model->parentId; instead of $model->parent_id.
@@ -101,7 +101,7 @@ trait AttributeMethods
             }
         }
     }
-    
+
     /**
      * This method is similar to getAttribute, but goes beyond attributes.
      * Cheks if the property named $propName is either an attribute,
@@ -126,7 +126,7 @@ trait AttributeMethods
             }
         }
     }
-    
+
     /**
      * @throw Exception\InvalidArgumentException
      */
@@ -137,12 +137,12 @@ trait AttributeMethods
         } elseif (static::table()->columnExists($name)) {
             return null;
         }
-        
+
         throw new Exception\InvalidArgumentException(
             sprintf("Trying to get non-attribute '%s' from model %s", $name, get_called_class())
         );
     }
-    
+
     public function setAttribute($name, $value)
     {
         if (!self::isAttribute($name)) {
@@ -150,19 +150,19 @@ trait AttributeMethods
                 sprintf("Trying to set non-attribute '%s' for model %s", $name, get_called_class())
             );
         }
-        
+
         $this->setChangedAttribute($name, $value);
-        
+
         # If setter exists for this attribute, it will have to set the attribute itself.
         if ($setter = $this->setterExists($name)) {
             $this->$setter($value);
         } else {
             $this->attributes[$name] = $value;
         }
-        
+
         return $this;
     }
-    
+
     public function issetAttribute($name)
     {
         if (!self::isAttribute($name)) {
@@ -170,15 +170,15 @@ trait AttributeMethods
                 sprintf("'%s' isn't an attribute for model %s", $name, get_called_class())
             );
         }
-        
+
         return isset($this->attributes[$name]);
     }
-    
+
     public function attributes()
     {
         return $this->attributes;
     }
-    
+
     /**
      * Add/change attributes to model
      *
@@ -195,26 +195,26 @@ trait AttributeMethods
         if (!$attrs) {
             return;
         }
-        
+
         if (empty($options['without_protection'])) {
             $this->filterProtectedAttributes($attrs);
         }
-        
+
         foreach ($attrs as $attrName => $value) {
             $this->setProperty($attrName, $value);
         }
     }
-    
+
     public function updateAttributes(array $attrs)
     {
         $this->assignAttributes($attrs);
-        
+
         if (!$this->_validate_data('save')) {
             return false;
         }
-        
-        return $this->runCallbacks('save', function() {
-            return $this->runCallbacks('update', function() {
+
+        return $this->runCallbacks('save', function () {
+            return $this->runCallbacks('update', function () {
                 return $this->_save_do();
             });
         });
@@ -237,7 +237,7 @@ trait AttributeMethods
     {
         return array_key_exists($attr, $this->changedAttributes);
     }
-    
+
     /**
      * This method returns the previous value of an attribute before updating a record. If
      * it was not changed, returns null.
@@ -245,20 +245,20 @@ trait AttributeMethods
     public function attributeWas($attr)
     {
         return $this->attributeChanged($attr) ?
-                $this->changedAttributes[$attr] :
-                $this->getAttribute($attr);
+            $this->changedAttributes[$attr] :
+            $this->getAttribute($attr);
     }
-    
+
     public function changedAttributes()
     {
         return $this->changedAttributes;
     }
-    
+
     public function clearChangedAttributes()
     {
         $this->changedAttributes = [];
     }
-    
+
     /**
      * List of the attributes that can't be changed in the model through
      * assignAttributes().
@@ -271,7 +271,7 @@ trait AttributeMethods
     {
         return null;
     }
-    
+
     /**
      * List of the only attributes that can be changed in the model through
      * assignAttributes().
@@ -284,7 +284,7 @@ trait AttributeMethods
     {
         return null;
     }
-    
+
     /**
      * Store changed attribute value.
      * $attributes array starts empty. When registering an attribute's $newValue,
@@ -301,34 +301,34 @@ trait AttributeMethods
         if (!$this->attributeChanged($attrName)) {
             if (array_key_exists($attrName, $this->attributes)) {
                 $oldValue = $this->getAttribute($attrName);
-                if ((string)$newValue != (string)$oldValue) {
+                if ((string) $newValue != (string) $oldValue) {
                     $this->changedAttributes[$attrName] = $oldValue;
                 }
             }
-        } elseif ((string)$newValue == (string)$this->changedAttributes[$attrName]) {
+        } elseif ((string) $newValue == (string) $this->changedAttributes[$attrName]) {
             unset($this->changedAttributes[$attrName]);
         }
     }
-    
+
     private function filterProtectedAttributes(&$attributes)
     {
         # Default protected attributes
         $default_columns = ['created_at', 'updated_at', 'created_on', 'updated_on'];
-        
+
         if ($pk = static::table()->primaryKey()) {
             $default_columns[] = $pk;
         }
-        
+
         $default_protected = array_fill_keys(array_merge($default_columns, $this->_associations_names()), true);
         $attributes = array_diff_key($attributes, $default_protected);
-        
+
         if (is_array($attrs = $this->attrAccessible())) {
             $attributes = array_intersect_key($attributes, array_fill_keys($attrs, true));
         } elseif (is_array($attrs = $this->attrProtected())) {
             $attributes = array_diff_key($attributes, array_fill_keys($attrs, true));
         }
     }
-    
+
     private function setDefaultAttributes()
     {
         $this->attributes = self::table()->columnDefaults();

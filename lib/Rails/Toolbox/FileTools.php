@@ -23,7 +23,7 @@ abstract class FileTools
             $path->isFile() ? unlink($path->getPathname()) : rmdir($path->getPathname());
         }
     }
-    
+
     /**
      * Lists all directories and subdirectories found in a path.
      */
@@ -37,7 +37,7 @@ abstract class FileTools
         }
         return $dirs;
     }
-    
+
     /**
      * Search for all files matching a pattern within a directory and sub directories.
      */
@@ -45,41 +45,41 @@ abstract class FileTools
     {
         $dirs = self::listDirs($root);
         array_unshift($dirs, $root);
-        
+
         $foundFiles = [];
-        
+
         foreach ($dirs as $dir) {
             $filePatt = $dir . '/' . $pattern;
             $files = glob($filePatt, $flags);
-        
+
             if ($files) {
                 $foundFiles = array_merge($foundFiles, $files);
             }
         }
-        
+
         return $foundFiles;
     }
-    
+
     // static public function mod_time($path) 
     // {
-        // return self::modTime($path);
+    // return self::modTime($path);
     // }
-    
+
     /**
      * File modification time.
      * Found at PHP.net
      * filemtime() returns invalid date on Windows, this function fixes that.
      */
-    static public function modTime($path) 
-    { 
+    static public function modTime($path)
+    {
         $time = filemtime($path);
         $is_dst = (date('I', $time) == 1);
         $system_dst = (date('I') == 1);
         $adjustment = 0;
-        
-        if($is_dst == false && $system_dst == true)
+
+        if ($is_dst == false && $system_dst == true)
             $adjustment = 3600;
-        elseif($is_dst == true && $system_dst == false)
+        elseif ($is_dst == true && $system_dst == false)
             $adjustment = -3600;
         else
             $adjustment = 0;

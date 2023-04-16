@@ -1,8 +1,9 @@
 <?= $this->phpOpenTag() ?>
-class <?= $this->migrationClassName ?> extends Rails\ActiveRecord\Migration\Base
+class
+<?= $this->migrationClassName ?> extends Rails\ActiveRecord\Migration\Base
 {
-    public function up()
-    {
-        
-    }
+public function up()
+{
+
+}
 }

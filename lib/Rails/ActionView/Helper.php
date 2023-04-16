@@ -12,13 +12,13 @@ use Rails\Routing\Traits\NamedPathAwareTrait;
 abstract class Helper extends ActionView
 {
     use NamedPathAwareTrait;
-    
+
     /**
      * ActionView_Base children for methods that
      * require it when passing Closures, like form().
      */
     private $_view;
-    
+
     public function __call($method, $params)
     {
         if ($this->isNamedPathMethod($method)) {
@@ -27,12 +27,12 @@ abstract class Helper extends ActionView
             $helper->setView($this);
             return call_user_func_array(array($helper, $method), $params);
         }
-        
+
         throw new Exception\BadMethodCallException(
             sprintf("Called to unknown method/helper: %s", $method)
         );
     }
-    
+
     /**
      * Returns instance of Helper\Base
      */
@@ -40,47 +40,47 @@ abstract class Helper extends ActionView
     {
         return ViewHelpers::getBaseHelper();
     }
-    
+
     public function setView(ActionView $view)
     {
         $this->_view = $view;
     }
-    
+
     public function view()
     {
         return $this->_view;
     }
-    
+
     public function urlFor($params)
     {
         return Rails::application()->router()->urlFor($params);
     }
-    
+
     public function params()
     {
         return Rails::application()->dispatcher()->parameters();
     }
-    
+
     public function request()
     {
         return Rails::application()->dispatcher()->request();
     }
-    
+
     public function session()
     {
         return Rails::application()->dispatcher()->session();
     }
-    
+
     public function controller()
     {
         return Rails::application()->controller();
     }
-    
+
     public function u($str)
     {
-        return urlencode($str);
+        return urlencode($str ?? '');
     }
-    
+
     public function hexEncode($str)
     {
         $r = '';
@@ -95,24 +95,24 @@ abstract class Helper extends ActionView
         }
         return $r;
     }
-    
+
     public function h($str, $flags = null, $charset = null)
     {
         $flags === null && $flags = ENT_COMPAT;
         !$charset && $charset = Rails::application()->config()->encoding;
-        return htmlspecialchars($str, $flags, $charset);
+        return htmlspecialchars($str ?? '', $flags, $charset);
     }
-    
+
     public function I18n()
     {
         return Rails::services()->get('i18n');
     }
-    
+
     public function t($name)
     {
         return $this->I18n()->t($name);
     }
-    
+
     # TODO: move this method somewhere else, it doesn't belong here.
     protected function parseUrlParams($url_params)
     {

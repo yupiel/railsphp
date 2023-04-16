@@ -235,7 +235,7 @@ final class Rails
                 require_once __DIR__ . '/Exception/PHPError/Base.php';
                 require_once __DIR__ . '/Exception/PHPError/Unknown.php';
                 $class_name = 'Unknown';
-                $errtype = '[ErrNo '.$errno.']';
+                $errtype = '[ErrNo ' . $errno . ']';
                 break;
         }
 
@@ -377,8 +377,8 @@ final class Rails
 
         # Set Composer autoloader.
         $autoloadFile = defined("COMPOSER_AUTOLOADER") ?
-                        COMPOSER_AUTOLOADER :
-                        Rails::root() . '/vendor/autoload.php';
+            COMPOSER_AUTOLOADER :
+            Rails::root() . '/vendor/autoload.php';
         self::$loader->setComposerAutoload(require $autoloadFile);
 
         spl_autoload_register([Rails::loader(), 'loadClass']);
@@ -398,7 +398,7 @@ final class Rails
 
     static private function defaultLogger()
     {
-        $logLevel = (string)self::$config->log_level;
+        $logLevel = (string) self::$config->log_level;
 
         switch ($logLevel) {
             case '0':

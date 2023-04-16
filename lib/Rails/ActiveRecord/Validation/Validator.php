@@ -17,42 +17,42 @@ use Rails\Validation\Validation as RailsValidation;
 class Validator extends RailsValidation
 {
     private
-        $_model,
-    
-        $_action,
-    
-        $_property,
-    
-        /**
-         * Helps for validations that could have
-         * different messages (e.g. length (minimum, maximum, is))
-         */
-        $_error_message_type = 'default',
-        
-        $_error_message,
-    
-        $_continue_validation;
-    
+    $_model,
+
+    $_action,
+
+    $_property,
+
+    /**
+     * Helps for validations that could have
+     * different messages (e.g. length (minimum, maximum, is))
+     */
+    $_error_message_type = 'default',
+
+    $_error_message,
+
+    $_continue_validation;
+
     public function set_params($action, Rails\ActiveRecord\Base $model, $property)
     {
-        $this->_model    = $model;
-        $this->_action   = $action;
+        $this->_model = $model;
+        $this->_action = $action;
         $this->_property = $property;
     }
-    
+
     public function validate()
     {
         // if (current($this->_params) instanceof \Closure)
-            // $this->_run_closure();
+        // $this->_run_closure();
         // else
         $this->_check_conditions();
-        
+
         if ($this->_continue_validation)
             parent::validate();
-        
+
         return $this;
     }
-    
+
     public function set_error_message()
     {
         if (isset($this->_params['base_message']))
@@ -62,7 +62,7 @@ class Validator extends RailsValidation
             $this->_model->errors()->add($this->_property, $this->_error_message);
         }
     }
-    
+
     protected function _validate_number()
     {
         if (isset($this->_params['allow_null']) && $this->_model->getAttribute($this->_property) === null)
@@ -70,7 +70,7 @@ class Validator extends RailsValidation
         else
             return parent::_validate_number();
     }
-    
+
     protected function _validate_length()
     {
         if (isset($this->_params['allow_null']) && $this->_model->getAttribute($this->_property) === null)
@@ -80,39 +80,39 @@ class Validator extends RailsValidation
         else
             return parent::_validate_length();
     }
-    
+
     protected function _validate_uniqueness()
     {
         $cn = get_class($this->_model);
         if ($this->_model->isNewRecord()) {
-            $query = $cn::where('`'.$this->_property.'` = ?', $this->_model->getAttribute($this->_property));
+            $query = $cn::where('`' . $this->_property . '` = ?', $this->_model->getAttribute($this->_property));
         } else {
-            $query = $cn::where('`'.$this->_property.'` = ? AND id != ?', $this->_model->getAttribute($this->_property), $this->_model->getAttribute('id'));
+            $query = $cn::where('`' . $this->_property . '` = ? AND id != ?', $this->_model->getAttribute($this->_property), $this->_model->getAttribute('id'));
         }
-        return !((bool)$query->first());
+        return !((bool) $query->first());
     }
-    
+
     protected function _validate_presence()
     {
-        $property = trim($this->_model->{$this->_property});
+        $property = trim($this->_model->{$this->_property} ?? '');
         return !empty($property);
     }
-    
+
     protected function _validate_confirmation()
     {
         $property = Rails::services()->get('inflector')->camelize($this->_property, false) . 'Confirmation';
-        
+
         if ($this->_model->$property === null)
             return true;
-        
-        return (string)$this->_model->getProperty($this->_property) == (string)$this->_model->$property;
+
+        return (string) $this->_model->getProperty($this->_property) == (string) $this->_model->$property;
     }
-    
+
     protected function _validate_acceptance()
     {
         return !empty($this->_model->{$this->_property});
     }
-    
+
     private function _run_closure()
     {
         $closure = current($this->_params);
@@ -120,17 +120,17 @@ class Validator extends RailsValidation
             $this->_success = true;
         }
     }
-    
+
     private function _check_conditions()
     {
         if (!isset($this->_params['on']))
             $this->_params['on'] = 'save';
         $this->_run_on();
-        
+
         if (isset($this->_params['if']))
             $this->_run_if();
     }
-    
+
     private function _run_on()
     {
         if ($this->_params['on'] == 'save' || $this->_params['on'] == $this->_action)
@@ -138,7 +138,7 @@ class Validator extends RailsValidation
         else
             $this->_success = true;
     }
-    
+
     private function _run_if()
     {
         if (is_array($this->_params['if'])) {
@@ -166,15 +166,15 @@ class Validator extends RailsValidation
                 sprintf("Validation condition must be an array, %s passed", gettype($this->_params['if']))
             );
         }
-        
+
         $this->_continue_validation = true;
     }
-    
+
     private function _set_error_message()
     {
         $message = '';
         $this->_define_error_message_type();
-        
+
         if ($this->_error_message_type != 'default') {
             if (isset($this->_params[$this->_error_message_type]))
                 $message = $this->_params[$this->_error_message_type];
@@ -183,7 +183,7 @@ class Validator extends RailsValidation
             $message = $this->_error_message();
         $this->_error_message = $message;
     }
-    
+
     private function _define_error_message_type()
     {
         switch ($this->_type) {
@@ -201,7 +201,7 @@ class Validator extends RailsValidation
         }
         $this->_error_message_type = $msg_type;
     }
-    
+
     private function _error_message()
     {
         switch ($this->_type) {
@@ -226,19 +226,19 @@ class Validator extends RailsValidation
                     }
                 }
                 break;
-            
+
             case 'blank':
                 $params = ['blank'];
                 break;
-            
+
             case 'uniqueness':
                 $params = ['uniqueness'];
                 break;
-            
+
             case 'confirmation':
                 $params = ["confirmation"];
                 break;
-            
+
             default:
                 $params = ['invalid'];
                 break;

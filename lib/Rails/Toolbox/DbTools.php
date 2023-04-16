@@ -16,7 +16,7 @@ class DbTools
                 try {
                     ActiveRecord::setConnection($connectionName);
                     $connection = ActiveRecord::connection();
-                    
+
                     $dbname = $connection->selectValue("SELECT DATABASE()");
                     $tables = $connection->selectValues(sprintf('SHOW TABLES FROM `%s`', $dbname));
                 } catch (Throwable $e) {
@@ -24,7 +24,7 @@ class DbTools
                 } catch (\Exception $e) {
                     continue;
                 }
-                
+
                 if (!$tables) {
                     throw new Exception\RuntimeException(
                         sprintf(
@@ -37,17 +37,17 @@ class DbTools
                 foreach ($tables as $table_name) {
                     $class = 'Rails\ActiveRecord\Adapter\\' . $connection->adapterName() . '\Table';
                     $data = $class::fetchSchema($connection, $table_name);
-                    
+
                     $path = \Rails::root() . '/db/table_schema/' . $connection->name();
                     if (!is_dir($path))
                         mkdir($path, 0777, true);
-                    
+
                     $file = $path . '/' . $table_name . '.php';
-                    
-                    $contents  = "<?php\nreturn ";
+
+                    $contents = "<?php\nreturn ";
                     $contents .= var_export($data, true);
                     $contents .= "\n;";
-                    
+
                     file_put_contents($file, $contents);
                 }
             }

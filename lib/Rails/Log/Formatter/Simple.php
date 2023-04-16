@@ -4,11 +4,11 @@ namespace Rails\Log\Formatter;
 class Simple extends \Laminas\Log\Formatter\Simple
 {
     const DEFAULT_FORMAT = '%priorityName%: %message% %extra%';
-    
-    protected $format    = '%priorityName%: %message% %extra%';
-    
+
+    protected $format = '%priorityName%: %message% %extra%';
+
     protected $originalFormat;
-    
+
     public function format($event)
     {
         $prevFormat = null;
@@ -19,7 +19,7 @@ class Simple extends \Laminas\Log\Formatter\Simple
             $this->originalFormat = $this->format;
             $this->format = trim(str_replace('%priorityName%', '', $this->format), ': ');
         }
-        
+
         /**
          * Hack: write log with date.
          */
@@ -30,14 +30,14 @@ class Simple extends \Laminas\Log\Formatter\Simple
             $this->format = '[%timestamp%] ' . $this->format;
             unset($event['extra']['date']);
         }
-        
+
         $ret = parent::format($event);
-        
+
         if ($this->originalFormat) {
             $this->format = $this->originalFormat;
             $this->originalFormat = null;
         }
-        
+
         return $ret;
     }
 }

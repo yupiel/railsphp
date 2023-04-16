@@ -39,26 +39,26 @@ trait FormTag
             $block = $attrs;
             $attrs = [];
         }
-        
+
         if (!$block instanceof Closure)
             throw new Exception\BadMethodCallException("One of the arguments must be a Closure");
-        
+
         if (empty($attrs['method'])) {
             $attrs['method'] = 'post';
             $method = 'post';
         } elseif (($method = strtolower($attrs['method'])) != 'get') {
             $attrs['method'] = 'post';
         }
-        
+
         # Check special attribute 'multipart'.
         if (!empty($attrs['multipart'])) {
             $attrs['enctype'] = 'multipart/form-data';
             unset($attrs['multipart']);
         }
-        
+
         if ($action_url)
             $attrs['action'] = Rails::application()->router()->urlFor($action_url);
-        
+
         ob_start();
         if ($method != 'get' && $method != 'post')
             echo $this->hiddenFieldTag('_method', $method, ['id' => '']);
@@ -70,7 +70,7 @@ trait FormTag
     {
         return $this->_form_field_tag($type, $name, $value, $attrs);
     }
-    
+
     public function submitTag($value, array $attrs = [])
     {
         $attrs['type'] = 'submit';
@@ -78,7 +78,7 @@ trait FormTag
         !isset($attrs['name']) && $attrs['name'] = 'commit';
         return $this->tag('input', $attrs);
     }
-    
+
     public function textFieldTag($name, $value = null, array $attrs = [])
     {
         if (is_array($value)) {
@@ -87,17 +87,17 @@ trait FormTag
         }
         return $this->_form_field_tag('text', $name, $value, $attrs);
     }
-    
+
     public function hiddenFieldTag($name, $value, array $attrs = [])
     {
         return $this->_form_field_tag('hidden', $name, $value, $attrs);
     }
-    
+
     public function passwordFieldTag($name, $value = null, array $attrs = array())
     {
         return $this->_form_field_tag('password', $name, $value, $attrs);
     }
-    
+
     public function checkBoxTag($name, $value = '1', $checked = false, array $attrs = [])
     {
         if ($checked) {
@@ -105,7 +105,7 @@ trait FormTag
         }
         return $this->_form_field_tag('checkbox', $name, $value, $attrs);
     }
-    
+
     public function textAreaTag($name, $value, array $attrs = [])
     {
         if (isset($attrs['size']) && is_int(strpos($attrs['size'], 'x'))) {
@@ -114,36 +114,36 @@ trait FormTag
         }
         return $this->_form_field_tag('textarea', $name, $value, $attrs, true);
     }
-    
+
     public function radioButtonTag($name, $value, $checked = false, array $attrs = [])
     {
         if ($checked)
             $attrs['checked'] = 'checked';
         return $this->_form_field_tag('radio', $name, $value, $attrs);
     }
-    
+
     # $options may be closure, collection or an array of name => values.
     public function selectTag($name, $options, array $attrs = [])
     {
         # This is found also in Form::select()
         if (!is_string($options)) {
             if (is_array($options) && ArrayTools::isIndexed($options) && count($options) == 2)
-                list ($options, $value) = $options;
+                list($options, $value) = $options;
             else
                 $value = null;
             $options = $this->optionsForSelect($options, $value);
         }
-        
+
         if (isset($attrs['prompt'])) {
             $options = $this->contentTag('option', $attrs['prompt'], ['value' => '', 'allow_blank_attrs' => true]) . "\n" . $options;
             unset($attrs['prompt']);
         }
         $attrs['value'] = $attrs['type'] = null;
-        
+
         $select_tag = $this->_form_field_tag('select', $name, $options, $attrs, true);
         return $select_tag;
     }
-    
+
     /**
      * Note: For options to recognize the $tag_value, it must be identical to the option's value.
      */
@@ -152,22 +152,22 @@ trait FormTag
         # New feature: accept anonymous functions that will return options.
         if ($options instanceof Closure) {
             $options = $options();
-        /**
-         * New feature: accept collection as option in index 0, in index 1 the option name and in index 2 the value
-         * which are the properties of the models that will be used.
-         * Example: [ Category::all(), 'name', 'id' ]
-         * The second and third indexes can be either:
-         *  - An attribute name
-         *  - A public property
-         *  - A method of the model that will return the value for the option/name
-         */
+            /**
+             * New feature: accept collection as option in index 0, in index 1 the option name and in index 2 the value
+             * which are the properties of the models that will be used.
+             * Example: [ Category::all(), 'name', 'id' ]
+             * The second and third indexes can be either:
+             *  - An attribute name
+             *  - A public property
+             *  - A method of the model that will return the value for the option/name
+             */
         } elseif (is_array($options) && count($options) == 3 && ArrayTools::isIndexed($options) && $options[0] instanceof \Rails\ActiveModel\Collection) {
             list($models, $optionName, $valueName) = $options;
-            
+
             $options = [];
             if ($models->any()) {
                 $modelClass = get_class($models[0]);
-            
+
                 foreach ($models as $m) {
                     if ($modelClass::isAttribute($optionName)) {
                         $option = $m->getAttribute($optionName);
@@ -177,7 +177,7 @@ trait FormTag
                         # We assume it's a method.
                         $option = $m->$optionName();
                     }
-                    
+
                     if ($modelClass::isAttribute($valueName)) {
                         $value = $m->getAttribute($valueName);
                     } elseif ($modelClass::hasPublicProperty($optionName)) {
@@ -186,28 +186,28 @@ trait FormTag
                         # We assume it's a method.
                         $value = $m->$valueName();
                     }
-                    
+
                     $options[$option] = $value;
                 }
             }
         }
-        $tag_value = (string)$tag_value;
-        
+        $tag_value = (string) $tag_value;
+
         $tags = [];
         foreach ($options as $name => $value) {
-            $value = (string)$value;
+            $value = (string) $value;
             $tags[] = $this->_form_field_tag('option', null, $name, array('selected' => $value === $tag_value ? '1' : '', 'id' => '', 'value' => $value), true);
         }
-        
+
         return implode("\n", $tags);
     }
-    
-    private function _form_field_tag($field_type, $name = null, $value, array $attrs = [], $content_tag = false)
+
+    private function _form_field_tag($field_type, $name = null, $value = "", array $attrs = [], $content_tag = false)
     {
         !isset($attrs['id']) && $attrs['id'] = trim(str_replace(['[', ']', '()', '__'], ['_', '_', '', '_'], $name), '_');
         $name && $attrs['name'] = $name;
-        $value = (string)$value;
-        
+        $value = (string) $value;
+
         if ($content_tag) {
             return $this->contentTag($field_type, $value, $attrs);
         } else {

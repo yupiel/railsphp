@@ -27,87 +27,96 @@ use Rails\Routing\UrlFor;
 abstract class Base extends ActionController
 {
     use NamedPathAwareTrait;
-    
+
     const CONTENT_TYPE_JSON = 'application/json';
-    
-    const CONTENT_TYPE_XML  = 'application/xml';
-    
+
+    const CONTENT_TYPE_XML = 'application/xml';
+
     const DEFAULT_REDIRECT_STATUS = 302;
-    
+
     const APP_CONTROLLER_CLASS = 'ApplicationController';
-    
+
     static private $RENDER_OPTIONS = [
-        'action','template', 'lambda', 'partial', 'json', 'xml', 'text', 'inline', 'file', 'nothing'
+        'action',
+        'template',
+        'lambda',
+        'partial',
+        'json',
+        'xml',
+        'text',
+        'inline',
+        'file',
+        'nothing'
     ];
-    
+
     /**
      * @see respondWith()
      */
     private $respondTo = [];
-    
+
     private $layout;
-    
+
     private $actionRan = false;
-    
+
     # Must not include charset.
     private $contentType;
-    
+
     private $charset;
-    
+
     private $status = 200;
 
     private
-        /**
-         * Variables set to the controller itself will be stored
-         * here through __set(), and will be passed to the view.
-         *
-         * @var stdClass
-         * @see vars()
-         */
-        $locals,
-        
-        $_array_names = [],
-         
-        /**
-         * Extra actions to run according to request format.
-         *
-         * This accepts the following params:
-         * Null: Nothing has been set (default).
-         * True: Can respond to format, no action needed.
-         * Closure: Can respond to format, run Closure.
-         * False: Can't respond to format. Render Nothing with 406.
-         */
-        $_respond_action,
-        
-        /**
-         * Default variable to respond with.
-         *
-         * @see respond_with()
-         */
-        $_respond_with = [],
+    /**
+     * Variables set to the controller itself will be stored
+     * here through __set(), and will be passed to the view.
+     *
+     * @var stdClass
+     * @see vars()
+     */
+    $locals,
 
-        /**
-         * Stores the render parameters.
-         *
-         * @see render_params()
-         * @see _render()
-         * @see _redirect_to()
-         * @see _set_response_params()
-         */
-        $_response_params = [],
-        
-        $redirect_params,
-        $render_params,
-        
-        $_response_extra_params = [];
-    
+    $_array_names = [],
+
+    /**
+     * Extra actions to run according to request format.
+     *
+     * This accepts the following params:
+     * Null: Nothing has been set (default).
+     * True: Can respond to format, no action needed.
+     * Closure: Can respond to format, run Closure.
+     * False: Can't respond to format. Render Nothing with 406.
+     */
+    $_respond_action,
+
+    /**
+     * Default variable to respond with.
+     *
+     * @see respond_with()
+     */
+    $_respond_with = [],
+
+    /**
+     * Stores the render parameters.
+     *
+     * @see render_params()
+     * @see _render()
+     * @see _redirect_to()
+     * @see _set_response_params()
+     */
+    $_response_params = [],
+
+    $redirect_params,
+    $render_params,
+
+    $_response_extra_params = [];
+
     /**
      * ReflectionClass for ApplicationController.
      */
     private $appControllerRefls = [];
-    
+
     private $selfRefl;
-    
+
     /**
      * Children classes shouldn't override __construct(),
      * they should override init() instead.
@@ -121,15 +130,15 @@ abstract class Base extends ActionController
     public function __construct()
     {
         $class = get_called_class();
-        
+
         if (!$this->isAppController($class)) {
             $this->locals = new stdClass();
             $this->selfRefl = new ReflectionClass($class);
-            
+
             if (!$this instanceof ExceptionHandler) {
                 $this->_set_default_layout();
                 $reflection = $this->selfRefl;
-                
+
                 while (true) {
                     $parent = $reflection->getParentClass();
                     if ($this->isAppController($parent->getName())) {
@@ -144,66 +153,80 @@ abstract class Base extends ActionController
             }
         }
     }
-    
+
     public function __set($prop, $val)
     {
         $this->setLocal($prop, $val);
     }
-    
+
     public function __get($prop)
     {
-        if (!array_key_exists($prop, (array)$this->locals)) {
+        if (!array_key_exists($prop, (array) $this->locals)) {
             throw new Exception\RuntimeException(
                 sprintf("Trying to get undefined local '%s'", $prop)
             );
         }
         return $this->locals->$prop;
     }
-    
+
     public function __call($method, $params)
     {
         if ($this->isNamedPathMethod($method)) {
             return $this->getNamedPath($method, $params);
         }
-        
+
         throw new Exception\BadMethodCallException(
             sprintf("Called to unknown method: %s", $method)
         );
     }
-    
+
     public function response_params()
     {
         return $this->_response_params;
     }
-    
+
     public function responded()
     {
         return $this->render_params || $this->redirect_params;
     }
-    
+
+    public function getLocal($name)
+    {
+        if (!$this->localExists($name)) {
+            throw new Exception\RuntimeException(
+                sprintf("Undefined local '%s'", $name)
+            );
+        }
+
+        if ($this->locals instanceof stdClass) {
+            return $this->locals->$name;
+        } else {
+            return $this->locals[$name];
+        }
+    }
+
     public function setLocal($name, $value)
     {
-        if (is_array($value)) {
-            $this->_array_names[] = $name;
-            $this->$name = $value;
-        } else {
+        if ($this->locals instanceof stdClass) {
             $this->locals->$name = $value;
+        } else {
+            $this->locals[$name] = $value;
         }
         return $this;
     }
-    
+
     public function locals()
     {
         foreach ($this->_array_names as $prop_name)
             $this->locals->$prop_name = $this->$prop_name;
         return $this->locals;
     }
-    
+
     public function vars()
     {
         return $this->locals();
     }
-    
+
     /**
      * Shortcut
      */
@@ -211,22 +234,22 @@ abstract class Base extends ActionController
     {
         return Rails::services()->get('i18n');
     }
-    
+
     public function action_name()
     {
         return Rails::services()->get('inflector')->camelize(Rails::application()->dispatcher()->router()->route()->action, false);
     }
-    
+
     public function run_request_action()
     {
         $action = $this->action_name();
-        
+
         if (!$this->_action_method_exists($action) && !$this->_view_file_exists()) {
             throw new Exception\UnknownActionException(
                 sprintf("The action '%s' could not be found for %s", $action, get_called_class())
             );
         }
-        
+
         $this->runFilters('before');
         /**
          * Check if response params where set by the
@@ -239,7 +262,7 @@ abstract class Base extends ActionController
             }
             $this->runFilters('after');
         }
-        
+
         if ($this->redirect_params) {
             $this->_set_redirection();
         } else {
@@ -247,17 +270,17 @@ abstract class Base extends ActionController
             $this->_create_response_body();
         }
     }
-    
+
     public function actionRan()
     {
         return $this->actionRan;
     }
-    
+
     public function status()
     {
         return $this->status;
     }
-    
+
     /**
      * This method was created so it can be extended in
      * the controllers with the solely purpose of
@@ -267,11 +290,11 @@ abstract class Base extends ActionController
     {
         $this->$action();
     }
-    
+
     protected function init()
     {
     }
-    
+
     /**
      * Adds view helpers to the load list.
      * Accepts one or many strings.
@@ -280,7 +303,7 @@ abstract class Base extends ActionController
     {
         ActionView\ViewHelpers::addAppHelpers(func_get_args());
     }
-    
+
     /**
      * Respond to format
      *
@@ -319,16 +342,16 @@ abstract class Base extends ActionController
     public function respondTo($responses)
     {
         $format = $this->request()->format();
-        
+
         foreach ($responses as $fmt => $action) {
             if (is_int($fmt)) {
                 $fmt = $action;
                 $action = null;
             }
-            
+
             if ($fmt !== $format)
                 continue;
-            
+
             if ($action) {
                 if (!$action instanceof Closure) {
                     throw new Exception\InvalidArgumentException(sprinft('Only closure can be passed to respondTo, %s passed', gettype($action)));
@@ -337,11 +360,11 @@ abstract class Base extends ActionController
             } else {
                 $action = true;
             }
-            
+
             $this->_respond_action = $action;
             return;
         }
-        
+
         /**
          * The request format is not acceptable.
          * Set to render nothing with 406 status.
@@ -349,11 +372,11 @@ abstract class Base extends ActionController
         Rails::log()->message("406 Not Acceptable");
         $this->render(array('nothing' => true), array('status' => 406));
     }
-    
+
     public function respondWith($var)
     {
         $format = $this->request()->format();
-        
+
         if (!in_array($format, $this->respondTo)) {
             /**
              * The request format is not acceptable.
@@ -366,7 +389,7 @@ abstract class Base extends ActionController
                 if ($format == 'html') {
                     $responses[] = 'html';
                 } else {
-                    $responses[$format] = function() use ($var, $format) {
+                    $responses[$format] = function () use ($var, $format) {
                         $this->render([$format => $var]);
                     };
                 }
@@ -374,7 +397,7 @@ abstract class Base extends ActionController
             $this->respondTo($responses);
         }
     }
-    
+
     /**
      * Sets layout value.
      */
@@ -385,17 +408,17 @@ abstract class Base extends ActionController
         else
             $this->layout = $value;
     }
-    
+
     public function setLayout($value)
     {
         $this->layout = $value;
     }
-    
+
     protected function setRespondTo(array $respondTo)
     {
         $this->respondTo = $respondTo;
     }
-    
+
     /**
      * @return array
      */
@@ -403,16 +426,16 @@ abstract class Base extends ActionController
     {
         return [];
     }
-    
+
     protected function render($render_params)
     {
         if ($this->responded()) {
             throw new Exception\DoubleRenderException('Can only render or redirect once per action.');
         }
-        
+
         $this->render_params = $render_params;
     }
-    
+
     /**
      * Sets a redirection.
      * Accepts ['status' => $http_status] among the $redirect_params.
@@ -422,10 +445,10 @@ abstract class Base extends ActionController
         if ($this->responded()) {
             throw new Exception\DoubleRenderException('Can only render or redirect once per action.');
         }
-        
+
         $this->redirect_params = $redirect_params;
     }
-    
+
     /**
      * For now we're only expecting one controller that extends ApplicationController,
      * that extends ActionController_Base.
@@ -435,7 +458,7 @@ abstract class Base extends ActionController
     protected function runFilters($type)
     {
         $closures = $this->getAppControllersMethod('filters');
-        
+
         if ($closures) {
             $filters = [];
             foreach ($closures as $closure) {
@@ -445,7 +468,7 @@ abstract class Base extends ActionController
         } else {
             $filters = $this->filters();
         }
-        
+
         if (isset($filters[$type])) {
             /**
              * We have to filter duped methods. We can't use array_unique
@@ -453,14 +476,14 @@ abstract class Base extends ActionController
              * and that will generate "Array to string conversion" error.
              */
             $ranMethods = [];
-            
+
             foreach ($filters[$type] as $methodName => $params) {
                 if (!is_array($params)) {
                     $methodName = $params;
                     $params = [];
                 }
-                
-                if ($this->canRunFilterMethod($params, $type) && !in_array($methodName, $ranMethods)) {
+
+                if ($this->canRunFilterMethod($params) && !in_array($methodName, $ranMethods)) {
                     $this->$methodName();
                     /**
                      * Before-filters may set response params. Running filters stop if one of them does.
@@ -473,33 +496,33 @@ abstract class Base extends ActionController
             }
         }
     }
-    
+
     protected function setStatus($status)
     {
         $this->status = $status;
     }
-    
+
     private function _action_method_exists($action)
     {
         $method_exists = false;
         $called_class = get_called_class();
         $refl = new ReflectionClass($called_class);
-        
+
         if ($refl->hasMethod($action)) {
             $method = $refl->getMethod($action);
             if ($method->getDeclaringClass()->getName() == $called_class && $method->isPublic())
                 $method_exists = true;
         }
-        
+
         return $method_exists;
     }
-    
+
     public function urlFor($params)
     {
         $urlfor = new UrlFor($params);
         return $urlfor->url();
     }
-    
+
     /**
      * If the method for the requested action doesn't exist in
      * the controller, it's checked if the view file exists.
@@ -517,16 +540,16 @@ abstract class Base extends ActionController
         $view_path = $base_path . '/' . $route->path() . '.php';
         return is_file($view_path);
     }
-    
+
     private function _set_default_layout()
     {
         $this->layout(Rails::application()->config()->action_view->layout);
     }
-    
-    private function canRunFilterMethod(array $params = [], $filter_type)
+
+    private function canRunFilterMethod(array $params = [])
     {
         $action = Rails::services()->get('inflector')->camelize($this->request()->action(), false);
-        
+
         if (isset($params['only']) && !in_array($action, $params['only'])) {
             return false;
         } elseif (isset($params['except']) && in_array($action, $params['except'])) {
@@ -534,18 +557,18 @@ abstract class Base extends ActionController
         }
         return true;
     }
-    
+
     private function _parse_response_params()
     {
         if ($this->render_params) {
             if (is_string($this->render_params)) {
-                $this->render_params = [ $this->render_params ];
+                $this->render_params = [$this->render_params];
             }
-            
+
             if (isset($this->render_params[0])) {
                 $param = $this->render_params[0];
                 unset($this->render_params[0]);
-                
+
                 if ($param == 'nothing') {
                     $this->render_params['nothing'] = true;
                 } elseif (is_int(($pos = strpos($param, '/'))) && $pos > 0) {
@@ -564,11 +587,11 @@ abstract class Base extends ActionController
             // }
         }
         // else {
-            // $route = Rails::application()->dispatcher()->router()->route();
-            // $this->render_params = ['action' => $route->action];
+        // $route = Rails::application()->dispatcher()->router()->route();
+        // $this->render_params = ['action' => $route->action];
         // }
     }
-    
+
     /*
      * Protected so it can be accessed by ExceptionHandler
      */
@@ -576,7 +599,7 @@ abstract class Base extends ActionController
     {
         $route = Rails::application()->dispatcher()->router()->route();
         $render_type = false;
-        
+
         foreach (self::$RENDER_OPTIONS as $option) {
             if (isset($this->render_params[$option])) {
                 $render_type = $option;
@@ -584,43 +607,43 @@ abstract class Base extends ActionController
                 unset($this->render_params[$option]);
             }
         }
-        
+
         if (!$render_type) {
             $render_type = 'action';
             $main_param = $route->action;
         }
-        
+
         // $render_type = key($this->render_params);
         // $main_param = array_shift($this->render_params);
-        
-        
+
+
         if (isset($this->render_params['status']))
             $this->status = $this->render_params['status'];
-        
+
         $class = null;
-        
+
         switch ($render_type) {
             case 'action':
                 # Cut the 'Controller' part of the class name.
                 $path = Rails::services()->get('inflector')->underscore(substr(get_called_class(), 0, -10)) . '/' . $main_param;
-                
+
                 // if ($route->namespaces())
-                    // $path = implode('/', $route->namespaces()) . '/' . $path;
-                
+                // $path = implode('/', $route->namespaces()) . '/' . $path;
+
                 $main_param = $path;
-                # Fallthrough
-                
+            # Fallthrough
+
             case 'template':
                 $respParams = [];
-                
+
                 $ext = pathinfo($main_param, PATHINFO_EXTENSION);
-                
+
                 if (!$ext) {
                     $template_name = $main_param;
-                    
+
                     # Unknown routes don't have format.
                     $format = $this->request()->format();
-                    
+
                     if (!$format || $format == 'html') {
                         $ext = 'php';
                     } else {
@@ -628,7 +651,7 @@ abstract class Base extends ActionController
                             $respParams['is_xml'] = true;
                         }
                         $ext = [$format, 'php'];
-                        
+
                         if (!$this->response()->headers()->contentType()) {
                             $this->response()->headers()->setContentType($format);
                         }
@@ -639,45 +662,45 @@ abstract class Base extends ActionController
                         $pinfo['filename'] = substr($pinfo['filename'], 0, -1 * (1 + strlen($pinfo['filename'])));
                         $ext = [$sub_ext, $ext];
                     } else {
-                        
+
                     }
-                    
+
                     $template_name = $pinfo['dirname'] . '/' . $pinfo['filename'];
                 }
-                
+
                 $layout = !empty($this->render_params['layout']) ? $this->render_params['layout'] : $this->layout;
                 if ($format && $format != 'html') {
                     $layout .= '.' . $format;
                     $respParams['optionalLayout'] = true;
                 }
-                
+
                 $respParams['layout'] = $layout;
-                
+
                 $respParams['template_name'] = $template_name;
                 $respParams['extension'] = $ext;
-                
+
                 $this->_response_params = $respParams;
-                
+
                 # Here we could choose a different responder according to extensions(?).
                 $class = 'Rails\ActionController\Response\Template';
                 break;
-            
+
             case 'lambda':
                 $class = 'Rails\ActionController\Response\Lambda';
                 $this->_response_params['lambda'] = $main_param;
                 break;
-            
+
             case 'partial':
                 $class = 'Rails\ActionController\Response\Partial';
                 $this->_response_params['partial'] = $main_param;
                 break;
-			
+
             case 'json':
                 $this->contentType = self::CONTENT_TYPE_JSON;
                 $this->_response_params = $main_param;
                 $class = "Rails\ActionController\Response\Json";
                 break;
-            
+
             case 'xml':
                 $this->contentType = self::CONTENT_TYPE_XML;
                 array_unshift($this->_response_params, $main_param);
@@ -686,65 +709,64 @@ abstract class Base extends ActionController
                 }
                 $class = "Rails\ActionController\Response\Xml";
                 break;
-            
+
             case 'text':
                 $this->response()->body($main_param);
                 break;
-            
+
             case 'inline':
                 $this->_response_params['code'] = $main_param;
                 $this->_response_params['layout'] = $this->layout;
                 $class = "Rails\ActionController\Response\Inline";
                 break;
-            
+
             case 'file':
                 $this->_response_params['file'] = $main_param;
                 $this->_response_params['layout'] = $this->layout ?: false;
                 $class = "Rails\ActionController\Response\File";
                 break;
-            
+
             case 'nothing':
                 break;
-            
+
             default:
                 throw new Exception\RuntimeException(sprintf("Invalid action render type '%s'", $render_type));
-                break;
         }
-		
+
         if ($class) {
             $responder = new $class($this->_response_params);
             $responder->render_view();
             $this->response()->body($responder->get_contents());
         }
-        
+
         $this->setHeaders();
     }
-    
+
     private function _set_redirection()
     {
         if ($this->redirect_params instanceof Rails\ActiveRecord\Base) {
             $path = lcfirst(get_class($this->redirect_params)) . 'Path';
-            $url  = $this->getNamedPath($path, [$this->redirect_params]);
+            $url = $this->getNamedPath($path, [$this->redirect_params]);
         } else {
             $redirect_params = $this->redirect_params;
-            
+
             if (!is_array($redirect_params))
                 $redirect_params = [$redirect_params];
-            
+
             $url = Rails::application()->router()->urlFor($redirect_params);
         }
-            
+
         if (!empty($redirect_params['status'])) {
             $status = $redirect_params['status'];
             unset($redirect_params['status']);
         } else {
             $status = self::DEFAULT_REDIRECT_STATUS;
         }
-        
+
         $this->response()->headers()->location($url);
         $this->response()->headers()->status($status);
     }
-    
+
     /**
      * Runs initializers for both the actual controller class
      * and it's parent ApplicationController, if any.
@@ -753,7 +775,7 @@ abstract class Base extends ActionController
     {
         $method_name = 'init';
         $cn = get_called_class();
-        
+
         # Run ApplicationController's init method.
         if ($inits = $this->getAppControllersMethod($method_name)) {
             foreach ($inits as $init) {
@@ -761,13 +783,13 @@ abstract class Base extends ActionController
                 $init();
             }
         }
-        
+
         $method = $this->selfRefl->getMethod($method_name);
         if ($method->getDeclaringClass()->getName() == $cn) {
             $this->$method_name();
         }
     }
-    
+
     /**
      * Searches through all the ApplicationControllers classes for a method,
      * and returns them all.
@@ -781,7 +803,7 @@ abstract class Base extends ActionController
             foreach ($this->appControllerRefls as $appRefl) {
                 if ($appRefl->hasMethod($methodName)) {
                     $method = $appRefl->getMethod($methodName);
-                    
+
                     if ($this->isAppController($method->getDeclaringClass()->getName())) {
                         if ($scope) {
                             $isScope = 'is' . ucfirst($scope);
@@ -793,21 +815,21 @@ abstract class Base extends ActionController
                     }
                 }
             }
-            
+
             if ($methods) {
                 return $methods;
             }
         }
-        
+
         return false;
     }
-    
+
     private function setHeaders()
     {
         $headers = $this->response()->headers();
         if (null === $this->charset)
             $this->charset = Rails::application()->config()->action_controller->base->default_charset;
-        
+
         if (!$headers->contentType()) {
             if (null === $this->contentType) {
                 $this->contentType = 'text/html';
@@ -815,13 +837,13 @@ abstract class Base extends ActionController
             $contentType = $this->contentType;
             if ($this->charset)
                 $contentType .= '; charset=' . $this->charset;
-            
+
             $headers->setContentType($contentType);
         }
-        
+
         $this->response()->headers()->status($this->status);
     }
-    
+
     private function isAppController($class)
     {
         return strpos($class, self::APP_CONTROLLER_CLASS) === (strlen($class) - strlen(self::APP_CONTROLLER_CLASS));

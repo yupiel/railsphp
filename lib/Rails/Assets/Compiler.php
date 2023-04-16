@@ -5,5 +5,5 @@ use Rails;
 
 class Compiler
 {
-    
+
 }

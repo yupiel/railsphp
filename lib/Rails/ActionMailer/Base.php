@@ -9,34 +9,34 @@ use Rails\Mail\Mail;
 abstract class Base
 {
     public $from;
-    
+
     public $to;
-    
+
     public $subject;
-    
+
     /**
      * TODO: this isn't used anywhere.
      */
     public $partsOrder = ['text/plain', 'text/html'];
-    
+
     public $templatePath;
-    
+
     public $charset;
-    
+
     public $textCharset;
-    
+
     public $htmlCharset;
-    
+
     public $templateName;
-    
+
     public $attachments = [];
-    
+
     public $calledMethod;
-    
+
     public $headers = [];
-    
+
     protected $vars;
-    
+
     static public function mail($method, array $params = [], array $headers = [])
     {
         $cn = get_called_class();
@@ -46,25 +46,25 @@ abstract class Base
         if (false !== call_user_func_array([$mailer, $method], $params))
             return $mailer->createMail();
     }
-    
+
     public function __construct()
     {
         $this->vars = new stdClass();
         $this->init();
     }
-    
+
     public function __set($prop, $value)
     {
         $this->vars->$prop = $value;
     }
-    
+
     public function __get($prop)
     {
         if (!isset($this->vars->$prop))
             return null;
         return $this->vars->$prop;
     }
-    
+
     /**
      * Just a quicker way to add an attachment.
      */
@@ -75,12 +75,12 @@ abstract class Base
                 sprintf("Attachment content must be either string or stream, %s passed")
             );
         }
-        
+
         $this->attachments[$name] = [
             'content' => $content
         ];
     }
-    
+
     /**
      * Just a quicker way to add an inline attachment.
      */
@@ -91,25 +91,25 @@ abstract class Base
                 sprintf("Attachment content must be either string or stream, %s passed")
             );
         }
-        
+
         $this->attachments[$name] = [
             'content' => $content,
-            'inline'  => true
+            'inline' => true
         ];
     }
-    
+
     public function vars()
     {
         return $this->vars;
     }
-    
+
     /**
      * Default values for properties can be set in this method.
      */
     protected function init()
     {
     }
-    
+
     private function createMail()
     {
         if (Rails::config()->action_mailer->defaults) {
@@ -122,13 +122,13 @@ abstract class Base
             $closure = $closure->bindTo($this);
             $closure();
         }
-        
+
         if (!$this->templateName)
             $this->templateName = Rails::services()->get('inflector')->underscore($this->calledMethod);
-        
+
         if (!$this->templatePath)
             $this->templatePath = Rails::services()->get('inflector')->underscore(get_called_class());
-        
+
         $deliverer = new Deliverer($this);
         return $deliverer;
     }

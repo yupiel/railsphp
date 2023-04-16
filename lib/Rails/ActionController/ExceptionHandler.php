@@ -17,22 +17,22 @@ use Throwable;
 abstract class ExceptionHandler extends Base
 {
     protected $exception;
-    
+
     protected $template = 'exception';
-    
+
     public function handle()
     {
         switch ($this->status()) {
             case 404:
                 $this->template = '404';
                 break;
-            
+
             default:
                 $this->template = '500';
                 break;
         }
     }
-    
+
     /**
      * @param Exception|Throwable $e
      * @return void
@@ -41,16 +41,16 @@ abstract class ExceptionHandler extends Base
     {
         $this->exception = $e;
         $this->setLayout(false);
-        
+
         $this->runAction("handle");
-        
+
         if (!$this->responded()) {
             $this->render(['action' => $this->template]);
         }
-        
+
         $this->_create_response_body();
     }
-    
+
     public function actionRan()
     {
         return true;

@@ -8,14 +8,14 @@ class ClosureApi
     const API_URL = 'https://closure-compiler.appspot.com/compile';
 
     static public
-        $save_file_on_error = true,
-        $save_path          = null,
-        $errorFile_name    = 'closure_api_errorFile.js';
+    $save_file_on_error = true,
+    $save_path = null,
+    $errorFile_name = 'closure_api_errorFile.js';
 
     protected
-        $_params,
-        $_resp,
-        $_lastInfo;
+    $_params,
+    $_resp,
+    $_lastInfo;
 
     static public function minify($code, array $params = [])
     {
@@ -31,7 +31,7 @@ class ClosureApi
         $obj->makeRequest($code);
         $resp = $obj->resp();
         if (!trim($resp))
-            throw new Exception\BlankResponseException("Closure returned an empty string (file too large? size => ".strlen($code).")");
+            throw new Exception\BlankResponseException("Closure returned an empty string (file too large? size => " . strlen($code) . ")");
         return $resp;
     }
 
@@ -55,10 +55,10 @@ class ClosureApi
 
         $ch = curl_init(self::API_URL);
         curl_setopt_array($ch, [
-            CURLOPT_POST            => true,
-            CURLOPT_POSTFIELDS      => http_build_query($params),
-            CURLOPT_RETURNTRANSFER  => true,
-            CURLOPT_HTTPHEADER      => [
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => http_build_query($params),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => [
                 "Content-type: application/x-www-form-urlencoded"
             ]
         ]);
@@ -81,8 +81,8 @@ class ClosureApi
     {
         return [
             'compilation_level' => 'WHITESPACE_ONLY',
-            'output_info'       => 'compiled_code',
-            'output_format'     => 'text',
+            'output_info' => 'compiled_code',
+            'output_format' => 'text',
             // 'language'          => 'ECMASCRIPT5'
         ];
     }

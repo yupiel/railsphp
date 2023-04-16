@@ -17,7 +17,7 @@ abstract class ArrayTools
         }
         return $flat;
     }
-    
+
     /**
      * Checks if an array is indexed.
      */

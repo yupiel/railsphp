@@ -7,20 +7,20 @@ namespace Rails\ServiceManager;
 class ServiceManager
 {
     protected $serviceList = [];
-    
-    protected $instances   = [];
-    
+
+    protected $instances = [];
+
     public function __construct()
     {
         $this->serviceList = [
-            'inflector'   => 'Rails\ActiveSupport\Inflector\Inflector',
-            'i18n'        => 'Rails\I18n\I18n',
-            'rails.cache' => function() {
+            'inflector' => 'Rails\ActiveSupport\Inflector\Inflector',
+            'i18n' => 'Rails\I18n\I18n',
+            'rails.cache' => function () {
                 $cache = new \Rails\Cache\Cache('file');
             }
         ];
     }
-    
+
     public function get($name)
     {
         if (!isset($this->instances[$name])) {
@@ -40,7 +40,7 @@ class ServiceManager
         }
         return $this->instances[$name];
     }
-    
+
     public function set($name, $value)
     {
         if (isset($this->serviceList[$name])) {

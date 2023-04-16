@@ -11,49 +11,49 @@ use Rails\Cache\Store\FileStore\Entry;
 class FileStore extends AbstractStore
 {
     protected $basePath;
-    
+
     public function __construct(array $config)
     {
         $this->basePath = $config[0];
     }
-    
+
     public function read($key, array $params = [])
     {
         return $this->getEntry($key, $params)->read();
     }
-    
+
     public function write($key, $value, array $params)
     {
         return $this->getEntry($key, $params)->write($value);
     }
-    
+
     public function delete($key, array $params)
     {
         return $this->getEntry($key, $params)->delete();
     }
-    
+
     public function exists($key, array $params)
     {
         return $this->getEntry($key, $params)->fileExists();
     }
-    
+
     /**
      * Removes cache files from directory.
      */
     public function deleteDirectory($dirname)
     {
         $dirpath = $this->path() . '/' . $dirname;
-        
+
         if (is_dir($dirpath)) {
-            ToolboxºFileTools::emptyDir($dirpath);
+            Toolbox\FileTools::emptyDir($dirpath);
         }
     }
-    
+
     public function basePath()
     {
         return $this->basePath;
     }
-    
+
     public function cleanup(array $options = [])
     {
         $files = glob($this->basePath . '/*');
@@ -65,12 +65,12 @@ class FileStore extends AbstractStore
             }
         }
     }
-    
+
     public function clear(array $options = [])
     {
         Toolbox\FileTools::emptyDir($this->basePath);
     }
-    
+
     public function deleteMatched($matcher, array $options = [])
     {
         $allFiles = Toolbox\FileTools::searchFile($this->basePath);
@@ -81,9 +81,9 @@ class FileStore extends AbstractStore
             }
         }
     }
-    
+
     protected function getEntry($key, array $params)
     {
-        return new Entry($key, $params, $this);
+        return new Entry($key, $this, $params);
     }
 }

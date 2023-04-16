@@ -4,7 +4,7 @@ namespace Rails\ActionDispatch;
 class Request
 {
     const LOCALHOST = '127.0.0.1';
-    
+
     /**
      * List of methods allowed through the _method parameter
      * in a POST request.
@@ -14,7 +14,7 @@ class Request
         'PATCH',
         'DELETE',
     ];
-    
+
     /**
      * Request path without the query string.
      * The application's basePath (i.e. if the app is ran under a subdirectory),
@@ -25,9 +25,9 @@ class Request
      */
     public function path()
     {
-        return substr($this->originalPath(), strlen(\Rails::application()->router()->basePath()));
+        return substr($this->originalPath(), strlen(\Rails::application()->router()->basePath() ?? ''));
     }
-    
+
     /**
      * Request path without the query string.
      * The application's basePath is included.
@@ -41,7 +41,7 @@ class Request
         }
         return substr($this->get('REQUEST_URI'), 0);
     }
-    
+
     /**
      * Full request path, includes query string, but excludes basePath.
      *
@@ -49,9 +49,9 @@ class Request
      */
     public function fullPath()
     {
-        return substr($this->get('REQUEST_URI'), strlen(\Rails::application()->router()->basePath()));
+        return substr($this->get('REQUEST_URI'), strlen(\Rails::application()->router()->basePath() ?? ''));
     }
-    
+
     /**
      * Full request path, includes both basePath and query string.
      *
@@ -61,46 +61,46 @@ class Request
     {
         return $this->get('REQUEST_URI');
     }
-    
+
     public function controller()
     {
         if (!($router = \Rails::application()->dispatcher()->router()) || !($route = $router->route()))
             return false;
         return $route->controller;
     }
-    
+
     public function action()
     {
         if (!($router = \Rails::application()->dispatcher()->router()) || !($route = $router->route()))
             return false;
         return $route->action;
     }
-    
+
     public function isGet()
     {
         return $this->method() === 'GET';
     }
-    
+
     public function isPost()
     {
         return $this->method() == 'POST';
     }
-    
+
     public function isPut()
     {
         return $this->method() == 'PUT';
     }
-    
+
     public function isDelete()
     {
         return $this->method() == 'DELETE';
     }
-    
+
     public function isPatch()
     {
         return $this->method() == 'PATCH';
     }
-    
+
     /**
      * Checks the request method.
      */
@@ -109,23 +109,23 @@ class Request
         $method = strtoupper($method);
         return $this->method() == $method;
     }
-    
+
     public function isLocal()
     {
         return \Rails::config()->consider_all_requests_local ?: $this->remoteIp() == self::LOCALHOST;
     }
-    
+
     public function remoteIp()
     {
         if ($this->get('HTTP_CLIENT_IP'))
             $remoteIp = $this->get('HTTP_CLIENT_IP');
         elseif ($this->get('HTTP_X_FORWARDED_FOR'))
             $remoteIp = $this->get('HTTP_X_FORWARDED_FOR');
-        else 
+        else
             $remoteIp = $this->get('REMOTE_ADDR');
         return $remoteIp;
     }
-    
+
     /**
      * Returns the overridden method name.
      *
@@ -141,25 +141,25 @@ class Request
         }
         return $this->get('REQUEST_METHOD');
     }
-    
+
     public function protocol()
     {
         $protocol = ($val = $this->get('HTTPS')) && $val !== 'off' ? 'https' : 'http';
         return $protocol . '://';
     }
-    
+
     public function isXmlHttpRequest()
     {
         return (($var = $this->get("HTTP_X_REQUESTED_WITH"))) && $var === "XMLHttpRequest";
     }
-    
+
     public function format()
     {
         if ($route = \Rails::application()->dispatcher()->router()->route()) {
             return $route->format;
         }
     }
-    
+
     /**
      * Get an index in the $_SERVER superglobal.
      *

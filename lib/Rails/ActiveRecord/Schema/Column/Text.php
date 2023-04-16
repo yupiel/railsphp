@@ -31,23 +31,25 @@ class Text extends ZfColumn
      */
     public function getExpressionData()
     {
-        $spec   = $this->specification;
+        $spec = $this->specification;
         $params = array();
 
-        $types    = array(self::TYPE_IDENTIFIER, self::TYPE_LITERAL);
+        $types = array(self::TYPE_IDENTIFIER, self::TYPE_LITERAL);
         $params[] = $this->name;
-        
+
         $params[] = strtoupper($this->size);
 
-        $types[]  = self::TYPE_LITERAL;
+        $types[] = self::TYPE_LITERAL;
         $params[] = (!$this->isNullable) ? 'NOT NULL' : '';
 
-        $types[]  = ($this->default !== null) ? self::TYPE_VALUE : self::TYPE_LITERAL;
+        $types[] = ($this->default !== null) ? self::TYPE_VALUE : self::TYPE_LITERAL;
 
-        return array(array(
-            $spec,
-            $params,
-            $types,
-        ));
+        return array(
+            array(
+                $spec,
+                $params,
+                $types,
+            )
+        );
     }
 }

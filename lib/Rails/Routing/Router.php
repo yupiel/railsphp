@@ -16,68 +16,68 @@ use Rails;
 
 class Router
 {
-    
+
     /**
      * Instance of RouteSet holding Rails_Router_Route objects.
      */
     private $_routes;
-    
-    private 
-        $_imported_routes = false,
-        $_url_helpers;
-    
+
+    private
+    $_imported_routes = false,
+    $_url_helpers;
+
     /**
      * Absolute request path.
      *
      * @see _find_request_path()
      */
     private $_request_path;
-    
+
     /**
      * Rails_Router_Route instance that matched the request.
      */
     private $_route;
-    
+
     private $base_path = false;
-    
+
     public function url_helpers()
     {
         if (!$this->_url_helpers)
             $this->_url_helpers = new UrlHelpers\UrlHelpers();
         return $this->_url_helpers;
     }
-    
+
     public function rootRoute()
     {
         return $this->routes()->rootRoute();
     }
-    
+
     public function panelRoute()
     {
         return $this->routes()->panelRoute();
     }
-    
+
     public function assetsRoute()
     {
         return $this->routes()->assetsRoute();
     }
-    
+
     public function find_route()
     {
         $this->matchRoutes();
     }
-    
+
     public function route()
     {
         return $this->_route;
     }
-    
+
     public function routes()
     {
         $this->importRoutes();
         return $this->_routes;
     }
-    
+
     /**
      * Base path can be get in views by calling urlFor('base') or basePath().
      */
@@ -93,68 +93,68 @@ class Router
         }
         return $this->base_path;
     }
-    
+
     public function rootPath()
     {
         if ($base_path = $this->basePath())
             return $base_path . '/';
         return '/';
     }
-    
+
     public function urlFor($params, $ignore_missmatch = false)
     {
         $urlfor = new UrlFor($params, $ignore_missmatch);
         return $urlfor->url();
     }
-    
+
     private function importRoutes()
     {
         if ($this->_imported_routes) {
             return;
         }
-        
+
         $this->_imported_routes = true;
-        
+
         $useCache = Rails::env() == 'production';
         $this->_routes = new Route\RouteSet();
-        
+
         if ($useCache) {
             $key = 'Rails.routing.routes';
             $cachedRoutes = Rails::cache()->read($key);
         } else {
             $cachedRoutes = false;
         }
-        
+
         if ($useCache && $cachedRoutes) {
             $this->_routes->drawCached($cachedRoutes);
         } else {
-            $importRoutes = function() {
-                $config      = Rails::config();
+            $importRoutes = function () {
+                $config = Rails::config();
                 $routes_file = $config->paths->config->concat('routes.php');
                 require $routes_file;
             };
-            
+
             if ($useCache) {
                 $this->_routes->setCacheRoutes(true);
                 $importRoutes();
-                
+
                 $cachedRoutes = $this->_routes->getCachedRoutes();
-                
+
                 Rails::cache()->write($key, $cachedRoutes);
             } else {
                 $importRoutes();
             }
         }
     }
-    
+
     private function matchRoutes()
     {
         $this->importRoutes();
-        
+
         $request_path = $this->_find_request_path();
-        
+
         $request_method = Rails::application()->dispatcher()->request()->method();
-        
+
         if ($this->rootRoute()->match($request_path, $request_method)) {
             $this->_route = $this->rootRoute();
         } elseif ($this->panelRoute() && $this->panelRoute()->match($request_path, $request_method)) {
@@ -166,7 +166,8 @@ class Router
                 if ($route->match($request_path, $request_method)) {
                     if (!is_file($route->controller_file())) {
                         throw new Exception\RoutingErrorException(
-                            sprintf('Controller file for "%sController" not found %s',
+                            sprintf(
+                                'Controller file for "%sController" not found %s',
                                 Rails::services()->get('inflector')->camelize($route->controller),
                                 $route->modules ? ' [ module=>' . $route->namespace_path() . ' ]' : ''
                             )
@@ -180,14 +181,15 @@ class Router
         }
         if (!$this->_route) {
             throw new Exception\NotFoundException(
-                sprintf('No route matches [%s] "%s"',
-                     Rails::application()->dispatcher()->request()->method(),
-                     Rails::application()->dispatcher()->request()->path()
+                sprintf(
+                    'No route matches [%s] "%s"',
+                    Rails::application()->dispatcher()->request()->method(),
+                    Rails::application()->dispatcher()->request()->path()
                 )
             );
         }
     }
-    
+
     private function _find_request_path()
     {
         if (!$this->_request_path) {
@@ -196,7 +198,7 @@ class Router
         }
         return $this->_request_path;
     }
-    
+
     /**
      * This method was copied from ZF2, slightly modified to fit Rails.
      * Laminas\Http\PhpEnvironment\Request::detectBaseUrl()
@@ -204,11 +206,11 @@ class Router
     protected function detectBasePath()
     {
         $request = Rails::application()->dispatcher()->request();
-        
-        $baseUrl        = '';
-        $filename       = $request->get('SCRIPT_FILENAME');
-        $scriptName     = $request->get('SCRIPT_NAME');
-        $phpSelf        = $request->get('PHP_SELF');
+
+        $baseUrl = '';
+        $filename = $request->get('SCRIPT_FILENAME');
+        $scriptName = $request->get('SCRIPT_NAME');
+        $phpSelf = $request->get('PHP_SELF');
         $origScriptName = $request->get('ORIG_SCRIPT_NAME');
 
         if ($scriptName !== null && basename($scriptName) === $filename) {
@@ -218,10 +220,10 @@ class Router
         } elseif ($origScriptName !== null && basename($origScriptName) === $filename) {
             $baseUrl = $origScriptName;
         } else {
-            $baseUrl  = '/';
+            $baseUrl = '/';
             $basename = basename($filename);
             if ($basename) {
-                $path     = ($phpSelf ? trim($phpSelf, '/') : '');
+                $path = ($phpSelf ? trim($phpSelf, '/') : '');
                 $baseUrl .= substr($path, 0, strpos($path, $basename)) . $basename;
             }
         }
@@ -248,8 +250,9 @@ class Router
         if (empty($basename) || false === strpos($truncatedRequestUri, $basename)) {
             return '';
         }
-        
-        if (strlen($requestUri) >= strlen($baseUrl)
+
+        if (
+            strlen($requestUri) >= strlen($baseUrl)
             && (false !== ($pos = strpos($requestUri, $baseUrl)) && $pos !== 0)
         ) {
             $baseUrl = substr($requestUri, 0, $pos + strlen($baseUrl));

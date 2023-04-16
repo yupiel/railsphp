@@ -9,34 +9,34 @@ use Rails;
 class Cookie
 {
     protected $name;
-    
+
     protected $value;
-    
+
     protected $expire;
-    
+
     protected $path;
-    
+
     protected $domain;
-    
+
     protected $secure = false;
-    
+
     protected $httponly = false;
-    
+
     protected $raw = false;
-    
+
     public function __construct($name, $value, $expire = null, $path = null, $domain = null, $secure = false, $httponly = false, $raw = false)
     {
         $this->setDefaultValues();
-        
-        $this->name     = (string)$name;
-        $this->domain   = (string)$domain;
-        $this->value    = $value === null ? '' : $value;
-        $this->expire   = $expire;
-        $this->path     = $path;
-        $this->secure   = $secure;
+
+        $this->name = (string) $name;
+        $this->domain = (string) $domain;
+        $this->value = $value === null ? '' : $value;
+        $this->expire = $expire;
+        $this->path = $path;
+        $this->secure = $secure;
         $this->httponly = $httponly;
-        $this->raw      = $raw;
-        
+        $this->raw = $raw;
+
         if (!$this->name) {
             throw new Exception\InvalidArgumentException('Cookies must have a name');
         }
@@ -68,12 +68,12 @@ class Cookie
             );
         }
     }
-    
+
     public function value()
     {
         return $this->value;
     }
-    
+
     public function set()
     {
         if ($this->raw) {
@@ -82,7 +82,7 @@ class Cookie
             setcookie($this->name, $this->value, $this->expire, $this->path, $this->domain, $this->secure, $this->httponly);
         }
     }
-    
+
     private function setDefaultValues()
     {
         $config = Rails::application()->config()->cookies;

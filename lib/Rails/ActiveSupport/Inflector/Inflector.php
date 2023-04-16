@@ -7,28 +7,28 @@ namespace Rails\ActiveSupport\Inflector;
 class Inflector
 {
     protected $inflections = [];
-    
+
     public function __construct()
     {
         $this->inflections['en'] = new DefaultEnglishInflections();
     }
-    
+
     public function inflections($locale = 'en', Closure $block = null)
     {
         if ($locale instanceof Closure) {
             $block = $locale;
             $locale = 'en';
         }
-        
+
         $inflections = $this->getInflections($locale);
-        
+
         if ($block) {
             $block($inflections);
         } else {
             return $inflections;
         }
     }
-    
+
     public function pluralize($word, $locale = 'en')
     {
         $irregulars = $this->inflections()->irregulars();
@@ -37,7 +37,7 @@ class Inflector
         }
         return $this->applyInflections($word, $this->inflections($locale)->plurals());
     }
-    
+
     public function singularize($word, $locale = 'en')
     {
         if (is_string($key = array_search($word, $this->inflections()->irregulars()))) {
@@ -45,14 +45,14 @@ class Inflector
         }
         return $this->applyInflections($word, $this->inflections($locale)->singulars());
     }
-    
+
     public function camelize($term, $uppercaseFirstLetter = true)
     {
-        $string = (string)$term;
+        $string = (string) $term;
         $acronyms = $this->inflections()->acronyms();
-        
+
         if ($uppercaseFirstLetter) {
-            $string = preg_replace_callback('/^[a-z\d]*/', function($m) use ($acronyms) {
+            $string = preg_replace_callback('/^[a-z\d]*/', function ($m) use ($acronyms) {
                 if (isset($acronyms[$m[0]])) {
                     return $acronyms[$m[0]];
                 } else {
@@ -61,12 +61,12 @@ class Inflector
             }, $string);
         } else {
             $acronymRegex = $this->inflections()->acronymRegex();
-            $string = preg_replace_callback('/^(?:'.$acronymRegex.'(?=\b|[A-Z_])|\w)/', function($m) use($term) {
+            $string = preg_replace_callback('/^(?:' . $acronymRegex . '(?=\b|[A-Z_])|\w)/', function ($m) use ($term) {
                 return strtolower($m[0]);
             }, $string);
         }
-        
-        return preg_replace_callback('/(?:_|(\/))([a-z\d]*)/i', function($m) use ($acronyms) {
+
+        return preg_replace_callback('/(?:_|(\/))([a-z\d]*)/i', function ($m) use ($acronyms) {
             if (isset($acronyms[$m[2]])) {
                 return $m[1] . $acronyms[$m[2]];
             } else {
@@ -74,11 +74,11 @@ class Inflector
             }
         }, $string);
     }
-    
+
     public function underscore($camelCasedWord)
     {
-        $word = (string)$camelCasedWord;
-        $word = preg_replace_callback('/(?:([A-Za-z\d])|^)(?=\b|[^a-z])/', function($m) use ($camelCasedWord) {
+        $word = (string) $camelCasedWord;
+        $word = preg_replace_callback('/(?:([A-Za-z\d])|^)(?=\b|[^a-z])/', function ($m) use ($camelCasedWord) {
             $ret = '';
             if (isset($m[1])) {
                 $ret = $m[1];
@@ -86,26 +86,26 @@ class Inflector
             if (isset($m[2])) {
                 $ret .= $m[2];
             }
-            
+
             return $ret;
         }, $word);
-        
+
         $word = preg_replace([
             '/([A-Z\d]+)([A-Z][a-z])/',
             '/([a-z\d])([A-Z])/'
         ], [
-            '\1_\2',
-            '\1_\2'
-        ], $word);
-        
+                '\1_\2',
+                '\1_\2'
+            ], $word);
+
         $word = strtr($word, '-\\', '_/');
         $word = strtolower($word);
         return $word;
     }
-    
+
     public function humanize($lowerCaseAndUnderscoredWord)
     {
-        $result = (string)$lowerCaseAndUnderscoredWord;
+        $result = (string) $lowerCaseAndUnderscoredWord;
         foreach ($this->inflections()->humans() as $rule => $replacement) {
             $ret = preg_replace($rule, $replacement, $result, -1, $count);
             if ($count) {
@@ -113,46 +113,46 @@ class Inflector
                 break;
             }
         }
-        
+
         if (strpos($result, '_id') === strlen($result) - 3) {
             $result = substr($result, 0, -3);
         }
         $result = strtr($result, '_', ' ');
-        
+
         $acronyms = $this->inflections()->acronyms();
-        
-        $result = preg_replace_callback('/([a-z\d]*)/i', function($m) use ($acronyms) {
+
+        $result = preg_replace_callback('/([a-z\d]*)/i', function ($m) use ($acronyms) {
             if (isset($acronyms[$m[1]])) {
                 return $acronyms[$m[1]];
             } else {
                 return strtolower($m[1]);
             }
         }, $result);
-        
-        $result = preg_replace_callback('/^\w/', function($m) {
+
+        $result = preg_replace_callback('/^\w/', function ($m) {
             return strtoupper($m[0]);
         }, $result);
         return $result;
     }
-    
+
     public function titleize($word)
     {
         return ucwords($this->humanize($this->underscore($word)));
     }
-    
+
     public function tableize($className)
     {
         return $this->pluralize($this->underscore($className));
     }
-    
+
     public function classify($tableName)
     {
         return $this->camelize($this->singularize(preg_replace('/.*\./', '', $tableName)));
     }
-    
+
     public function ordinal($number)
     {
-        $absNumber = (int)$number;
+        $absNumber = (int) $number;
         if (in_array($absNumber % 100, range(11, 13))) {
             return $absNumber . 'th';
         } else {
@@ -168,7 +168,7 @@ class Inflector
             }
         }
     }
-    
+
     protected function getInflections($locale)
     {
         if (!isset($this->inflections[$locale])) {
@@ -176,7 +176,7 @@ class Inflector
         }
         return $this->inflections[$locale];
     }
-    
+
     protected function applyInflections($word, $rules)
     {
         if (
