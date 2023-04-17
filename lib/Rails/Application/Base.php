@@ -108,6 +108,7 @@ class Base
     public function resetConfig($environment)
     {
         $this->setDefaultConfig();
+        $this->initConfig($this->config);
         $this->setEnvironmentConfig($environment);
     }
 
@@ -183,6 +184,16 @@ class Base
     {
         $this->_dispatcher = new ActionDispatch();
         $this->_dispatcher->init();
+    }
+
+    /**
+     * Used in /config/application.php to initialize custom configuration.
+     *
+     * @see _default_config()
+     * @return array.
+     */
+    protected function initConfig($config)
+    {
     }
 
     private function initPlugins()

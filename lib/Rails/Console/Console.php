@@ -17,7 +17,7 @@ class Console
     /**
      * Ask the user to confirm something.
      */
-    public function confirm(string $prompt)
+    public function confirm(string $prompt = "")
     {
         while (true) {
             $response = readline($prompt);
@@ -41,7 +41,7 @@ class Console
     /**
      * Ask the user for a text.
      */
-    public function input(string $prompt)
+    public function input(string $prompt = "")
     {
         while (true) {
             $response = trim(readline($prompt));
@@ -53,7 +53,7 @@ class Console
         }
     }
 
-    public function number(string $prompt)
+    public function number(string $prompt = "")
     {
         while (true) {
             $response = trim(readline($prompt));
@@ -69,12 +69,12 @@ class Console
         return call_user_func_array('Laminas\Console\Prompt\Select::prompt', func_get_args());
     }
 
-    public function write(string $text, int $color = null, int $bgColor = null)
+    public function write(string $text = "", int $color = null, int $bgColor = null)
     {
         echo $this->construct_colored_string($text, $color, $bgColor);
     }
 
-    public function writeLine(string $text, int $color = null, int $bgColor = null)
+    public function writeLine(string $text = "", int $color = null, int $bgColor = null)
     {
         echo $this->construct_colored_string($text, $color, $bgColor) . "\n";
     }
