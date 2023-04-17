@@ -102,6 +102,7 @@ class Base
         $this->_load_active_record();
         $this->setDispatcher();
         $this->initPlugins();
+        $this->init();
         $this->runInitializers();
     }
 
@@ -160,6 +161,12 @@ class Base
         return $this->_dispatcher->router();
     }
 
+    /**
+     * For custom init.
+     */
+    protected function init()
+    {
+    }
 
     protected function _run()
     {
