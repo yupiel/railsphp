@@ -13,10 +13,11 @@ class ActionDispatch
     private $_response;
 
     private
-    $_parameters,
     $_request,
     $_session,
     $_headers;
+
+    protected $_params;
 
     private $_router;
 
@@ -39,9 +40,9 @@ class ActionDispatch
 
     public function load_request_and_params()
     {
-        if (!$this->_parameters) {
+        if (!$this->_params) {
             $this->_request = new Request();
-            $this->_parameters = new Http\Parameters();
+            $this->_params = new Http\Parameters();
             $this->_session = new Http\Session();
         } else {
             throw new Exception\LogicException("Can't call init() more than once");
@@ -64,7 +65,7 @@ class ActionDispatch
      */
     public function parameters()
     {
-        return $this->_parameters;
+        return $this->_params;
     }
 
     public function request()
@@ -119,7 +120,7 @@ class ActionDispatch
     {
         $vars = $this->_router->route()->vars();
         unset($vars['controller'], $vars['action']);
-        $this->_parameters->setRouteVars($vars);
+        $this->_params->setRouteVars($vars);
     }
 
     private function _action_name()

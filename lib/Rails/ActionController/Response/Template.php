@@ -6,7 +6,7 @@ use Rails\ActionView;
 
 class Template extends Base
 {
-    private $_params;
+    protected $_params;
 
     private $_xml;
 
